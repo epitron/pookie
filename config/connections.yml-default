@@ -3,6 +3,11 @@
   channels:
     - "#pookie-testing"
 
+"irc.arcti.ca":
+  port: 6667
+  channels:
+    - "#pookie-testing"
+
 "irc.oftc.net":
   port: 6697
   ssl: true
