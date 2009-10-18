@@ -1,0 +1,8 @@
+default:
+  user: pookie
+  name: Pookie D. Bot
+  nick: pookie
+  nicks:
+    - pookie_
+    - pookie__
+    - [pookie]
