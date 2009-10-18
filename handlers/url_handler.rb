@@ -8,6 +8,25 @@ require 'cgi'
 
 class UrlHandler < Marvin::CommandHandler
 
+  TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
+  
+  UNESCAPE_TABLE = {
+      'nbsp' => ' ',
+      'raquo' => '>>',
+      'quot' => '"',
+      'micro' => 'u',
+      'copy' => '(c)',
+      'trade' => '(tm)',
+      'reg' => '(R)',
+      '#174' => '(R)',
+      '#8220' => '"',
+      '#8221' => '"',
+      '#8212' => '--',
+      '#39' => '\'',
+  }
+
+  ### Handle All Lines of Chat ############################
+
   #on_event :incoming_message, :look_for_url
   #desc "Looks for urls and displays the titles."
   #def look_for_url
@@ -30,6 +49,8 @@ class UrlHandler < Marvin::CommandHandler
   end
 
 
+  ### Private methods... ###############################
+  
   def get_title_for_url(uri_str, depth=10)
     # This god-awful mess is what the ruby http library has reduced me to.
     # Python's HTTP lib is so much nicer. :~(
@@ -62,7 +83,7 @@ class UrlHandler < Marvin::CommandHandler
               # since the content is 'text/*' and is small enough to
               # be a webpage, retrieve the title from the page
               logger.debug "[get_title_for_url] scraping title from #{url.request_uri}"
-              data = read_data_from_response(response, 50000)
+              data = read_data_from_response(response, 30000)
               return get_title_from_html(data)
             else
               # content doesn't have title, just display info.
@@ -83,24 +104,6 @@ class UrlHandler < Marvin::CommandHandler
   rescue SocketError => e
     return "[Link Info] Error connecting to site (#{e.message})"
   end
-
-
-
-  TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
-  
-  UNESCAPE_TABLE = {
-      'raquo' => '>>',
-      'quot' => '"',
-      'micro' => 'u',
-      'copy' => '(c)',
-      'trade' => '(tm)',
-      'reg' => '(R)',
-      '#174' => '(R)',
-      '#8220' => '"',
-      '#8221' => '"',
-      '#8212' => '--',
-      '#39' => '\'',
-  }
 
 
   def read_data_from_response(response, amount)
@@ -127,6 +130,7 @@ class UrlHandler < Marvin::CommandHandler
     
   end
 
+
   def unescape_title(htmldata)
     # first pass -- let CGI try to attack it...
     htmldata = CGI::unescapeHTML htmldata
@@ -144,7 +148,8 @@ class UrlHandler < Marvin::CommandHandler
         UNESCAPE_TABLE[symbol] || '*'
     }
   end
-    
+
+
   def get_title_from_html(pagedata)
     return unless TITLE_RE.match(pagedata)
     title = $1.strip.gsub(/\s*\n+\s*/, " ")
@@ -152,6 +157,7 @@ class UrlHandler < Marvin::CommandHandler
     title = title[0..255] if title.length > 255
     "[Link Info] title: #{title}"
   end
+
   
   #exposes :what
   
