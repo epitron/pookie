@@ -8,10 +8,11 @@ require 'cgi'
 
 class UrlHandler < Marvin::CommandHandler
 
-  on_event :incoming_message, :look_for_url
-  desc "Looks for urls and displays the titles."
-  def look_for_url
-    if options.message =~ /((f|ht)tps?:\/\/.*?)(?:\s+|$)/
+  #on_event :incoming_message, :look_for_url
+  #desc "Looks for urls and displays the titles."
+  #def look_for_url
+  def handle_incoming_message(args)
+    if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s+|$)/
       urlstr = $1
       
       logger.info "Getting title for #{urlstr}..."
@@ -19,7 +20,7 @@ class UrlHandler < Marvin::CommandHandler
       title = get_title_for_url urlstr
       
       if title
-        reply title
+        say title, args[:target]
         logger.info title
       else
         logger.info "Title not found!"
