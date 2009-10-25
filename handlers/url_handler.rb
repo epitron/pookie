@@ -82,16 +82,18 @@ class UrlHandler < Marvin::CommandHandler
     thing.to_i.to_s.gsub(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
   end
   
-  def get_title_for_url(url, depth=10, max_bytes=30000)
+  def get_title_for_url(url, depth=10, max_bytes=400000)
     
     easy = Curl::Easy.new(url) do |c|
       # Gotta put yourself out there...
       c.headers["User-Agent"] = "Curl/Ruby"
+      c.encoding = "gzip,deflate"
 
       c.verbose = true
      
       c.follow_location = true
       c.max_redirects = depth
+      
 
       c.enable_cookies = true
       c.cookiefile = "/tmp/curb.cookies"
@@ -115,7 +117,21 @@ class UrlHandler < Marvin::CommandHandler
     if easy.content_type =~ /^text\//
 
       data = ""
-      easy.on_body{|chunk| data << chunk; data.size < max_bytes ? chunk.size : 0 }
+      easy.on_body do |chunk| 
+        # check if we found a title (making sure to include a bit of the last chunk incase the <title> tag got cut in half)
+        found_title = ((data[-7..-1]||"") + chunk) =~ /<title>/
+        
+        data << chunk
+        
+        if data.size < max_bytes and !found_title
+          # keep going
+          chunk.size 
+        else
+          # abort!
+          0
+        end
+      end
+      
       begin
         logger.debug "[get_title_for_url] GET #{url}"
         easy.url = easy.last_effective_url
@@ -124,6 +140,8 @@ class UrlHandler < Marvin::CommandHandler
         logger.debug "RESCUED #{e.inspect}"
       end
       #data = easy.body_str
+      p [:data_size, data.size]
+      p [:title, data.grep(/<title>/i)]
       return get_title_from_html(data)
     
     ### Binary file
