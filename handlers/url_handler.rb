@@ -88,7 +88,7 @@ class UrlHandler < Marvin::CommandHandler
       # Gotta put yourself out there...
       c.headers["User-Agent"] = "Curl/Ruby"
 
-      #c.verbose = true
+      c.verbose = true
      
       c.follow_location = true
       c.max_redirects = depth
@@ -105,8 +105,9 @@ class UrlHandler < Marvin::CommandHandler
       return "[Link Info] Error: #{e}"
     end
     
-    code = easy.response_code
-    unless code == 200 or code == 403
+    okay_codes = [200, 403, 405]
+    code       = easy.response_code
+    unless okay_codes.include? code
       return "[Link Info] Error: #{code} - #{HTTP_STATUS_CODES[code]}"
     end
     
