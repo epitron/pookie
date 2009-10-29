@@ -1,9 +1,7 @@
 # Use this class to debug stuff as you 
 # go along - e.g. dump events etc.
-# options = {:ident=>"i=epi", :host=>"unaffiliated/epitron", :nick=>"Epilogue", :message=>"asdf", :target=>"#pookie-testing"}
+# options = {:ident=>"i=user", :host=>"unaffiliated/user", :nick=>"User", :message=>"this is a message", :target=>"#pookie-testing"}
 
-#require 'net/http'
-#require 'uri'
 require 'curb'
 require 'cgi'
 
@@ -23,7 +21,8 @@ class UrlHandler < Marvin::CommandHandler
       '#8220' => '"',
       '#8221' => '"',
       '#8212' => '--',
-      '#39' => '\'',
+      '#39' => "'",
+      '#8217' => "'",
   }
   
   HTTP_STATUS_CODES = {
@@ -124,7 +123,7 @@ class UrlHandler < Marvin::CommandHandler
         data << chunk
         
         if data.size < max_bytes and !found_title
-          # keep going
+          # keep reading...
           chunk.size 
         else
           # abort!
@@ -139,9 +138,6 @@ class UrlHandler < Marvin::CommandHandler
       rescue Exception => e
         logger.debug "RESCUED #{e.inspect}"
       end
-      #data = easy.body_str
-      p [:data_size, data.size]
-      p [:title, data.grep(/<title>/i)]
       return get_title_from_html(data)
     
     ### Binary file
@@ -161,12 +157,14 @@ class UrlHandler < Marvin::CommandHandler
     "[Link Info] title: #{title}"
   end
 
-  def unescape_title(htmldata)
-    # first pass -- let CGI try to attack it...
-    htmldata = CGI::unescapeHTML htmldata
+  def unescape_title(raw_title)
+    #p [:raw_title, raw_title]
+
+    # first pass -- let CGI have a crack at it...
+    raw_title = CGI::unescapeHTML raw_title
     
-    # second pass -- destroy the remaining bits...
-    htmldata.gsub(/(&(.+?);)/) {
+    # second pass -- fix things that won't display as ASCII...
+    raw_title.gsub(/(&(.+?);)/) {
         symbol = $2
         
         # remove the 0-paddng from unicode integers
