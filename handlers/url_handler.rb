@@ -11,6 +11,8 @@ class UrlHandler < Marvin::CommandHandler
   
   UNESCAPE_TABLE = {
       'nbsp' => ' ',
+      'ndash' => '-',
+      'mdash' => '-',
       'raquo' => '>>',
       'quot' => '"',
       'micro' => 'u',
@@ -158,7 +160,7 @@ class UrlHandler < Marvin::CommandHandler
   end
 
   def unescape_title(raw_title)
-    #p [:raw_title, raw_title]
+    p [:raw_title, raw_title]
 
     # first pass -- let CGI have a crack at it...
     raw_title = CGI::unescapeHTML raw_title
