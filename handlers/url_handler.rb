@@ -13,6 +13,7 @@ class UrlHandler < Marvin::CommandHandler
       'nbsp' => ' ',
       'ndash' => '-',
       'mdash' => '-',
+      'amp' => '&',
       'raquo' => '>>',
       'quot' => '"',
       'micro' => 'u',
@@ -166,7 +167,7 @@ class UrlHandler < Marvin::CommandHandler
     raw_title = CGI::unescapeHTML raw_title
     
     # second pass -- fix things that won't display as ASCII...
-    raw_title.gsub(/(&(.+?);)/) {
+    raw_title.gsub(/(&([\w\d#]+?);)/) {
         symbol = $2
         
         # remove the 0-paddng from unicode integers
