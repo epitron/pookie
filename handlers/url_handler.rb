@@ -147,7 +147,7 @@ class UrlHandler < Marvin::CommandHandler
     else
       # content doesn't have title, just display info.
       size = easy.downloaded_content_length #request_size
-      return "[Link Info] type: #{easy.content_type}#{size ? ", size: #{commatize(size)} bytes" : ""}"
+      return "[Link Info] type: #{easy.content_type}#{size == 0 ? "" : ", size: #{commatize(size)} bytes"}"
     end
     
   end
