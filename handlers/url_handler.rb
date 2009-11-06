@@ -15,6 +15,7 @@ class UrlHandler < Marvin::CommandHandler
       'mdash' => '-',
       'amp' => '&',
       'raquo' => '>>',
+      'laquo' => '<<',
       'quot' => '"',
       'micro' => 'u',
       'copy' => '(c)',
