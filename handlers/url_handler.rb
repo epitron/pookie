@@ -97,7 +97,8 @@ class UrlHandler < Marvin::CommandHandler
       c.follow_location = true
       c.max_redirects = depth
       
-
+      c.timeout = 25
+      c.connect_timeout = 10
       c.enable_cookies = true
       c.cookiefile = "/tmp/curb.cookies"
     end
