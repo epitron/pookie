@@ -65,9 +65,9 @@ class UrlHandler < Marvin::CommandHandler
   #desc "Looks for urls and displays the titles."
   #def look_for_url
   def handle_incoming_message(args)
-    if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s+|$)/
-      return if IGNORE_NICKS.any?{|pattern| args[:nick] =~ pattern}
+    return if IGNORE_NICKS.any?{|pattern| args[:nick] =~ pattern}
 
+    if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s+|$)/
       urlstr = $1
       
       logger.info "Getting title for #{urlstr}..."
