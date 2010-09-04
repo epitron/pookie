@@ -55,6 +55,10 @@ class UrlHandler < Marvin::CommandHandler
     503 => "Service unavailable",
   }
 
+  IGNORE_NICKS = [
+    /^CIA-\d+$/
+  ]
+        
   ### Handle All Lines of Chat ############################
 
   #on_event :incoming_message, :look_for_url
@@ -62,6 +66,8 @@ class UrlHandler < Marvin::CommandHandler
   #def look_for_url
   def handle_incoming_message(args)
     if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s+|$)/
+      return if IGNORE_NICKS.any?{|pattern| args[:nick] =~ pattern}
+
       urlstr = $1
       
       logger.info "Getting title for #{urlstr}..."
