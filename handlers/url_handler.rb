@@ -114,13 +114,13 @@ class UrlHandler < Marvin::CommandHandler
     begin
       easy.http_head
     rescue Exception => e
-      return "[Link Info] Error: #{e}"
+      return "Title Error: #{e}"
     end
     
     okay_codes = [200, 403, 405]
     code       = easy.response_code
     unless okay_codes.include? code
-      return "[Link Info] Error: #{code} - #{HTTP_STATUS_CODES[code]}"
+      return "Title Error: #{code} - #{HTTP_STATUS_CODES[code]}"
     end
     
     ### HTML page
@@ -155,7 +155,7 @@ class UrlHandler < Marvin::CommandHandler
     else
       # content doesn't have title, just display info.
       size = easy.downloaded_content_length #request_size
-      return "[Link Info] type: #{easy.content_type}#{size <= 0 ? "" : ", size: #{commatize(size)} bytes"}"
+      return "type: \2#{easy.content_type}\2#{size <= 0 ? "" : ", size: \2#{commatize(size)} bytes\2"}"
     end
     
   end
@@ -165,7 +165,7 @@ class UrlHandler < Marvin::CommandHandler
     title = $1.strip.gsub(/\s*\n+\s*/, " ")
     title = unescape_title title
     title = title[0..255] if title.length > 255
-    "[Link Info] title: #{title}"
+    "title: \2#{title}\2"
   end
 
   def unescape_title(raw_title)
