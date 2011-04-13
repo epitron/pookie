@@ -124,7 +124,7 @@ class UrlHandler < Marvin::CommandHandler
     end
     
     ### HTML page
-    if easy.content_type =~ /^text\//
+    if easy.content_type.nil? or easy.content_type =~ /^text\//
 
       data = ""
       easy.on_body do |chunk| 
