@@ -67,7 +67,7 @@ class UrlHandler < Marvin::CommandHandler
   def handle_incoming_message(args)
     return if IGNORE_NICKS.any?{|pattern| args[:nick] =~ pattern}
 
-    if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s+|$)/
+    if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s+|$)/i
       urlstr = $1
       
       logger.info "Getting title for #{urlstr}..."
