@@ -108,6 +108,10 @@ class UrlHandler < Marvin::CommandHandler
       c.connect_timeout = 10
       c.enable_cookies = true
       c.cookiefile = "/tmp/curb.cookies"
+
+      # Allow self-signed certs
+      c.ssl_verify_peer = false
+      c.ssl_verify_host = false
     end
     
     logger.debug "[get_title_for_url] HEAD #{url}"
