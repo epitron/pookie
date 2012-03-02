@@ -3,6 +3,7 @@
 # options = {:ident=>"i=user", :host=>"unaffiliated/user", :nick=>"User", :message=>"this is a message", :target=>"#pookie-testing"}
 
 require 'curb'
+require 'epitools'
 require 'cgi'
 
 class UrlHandler < Marvin::CommandHandler
@@ -59,7 +60,7 @@ class UrlHandler < Marvin::CommandHandler
     /^CIA-\d+$/,
     /^travis-ci/,
   ]
-        
+
   ### Handle All Lines of Chat ############################
 
   #on_event :incoming_message, :look_for_url
@@ -68,12 +69,15 @@ class UrlHandler < Marvin::CommandHandler
   def handle_incoming_message(args)
     return if IGNORE_NICKS.any?{|pattern| args[:nick] =~ pattern}
 
+    p args
+
     if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s|$)/i
       urlstr = $1
       
       logger.info "Getting title for #{urlstr}..."
       
-      title = get_title_for_url urlstr
+      #title = get_title_for_url urlstr
+      title = get_title urlstr
       
       if title
         say title, args[:target]
@@ -85,14 +89,63 @@ class UrlHandler < Marvin::CommandHandler
     end
   end
 
-
   ### Private methods... ###############################
   
   def commatize(thing)
     thing.to_i.to_s.gsub(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
   end
   
-  def get_title_for_url(url, depth=10, max_bytes=400000)
+  def get_title(url)
+
+    @browser ||= Browser.new
+
+    case url
+    when %r{(https?://twitter.com/)(?:#!/)?(.+/status/\d+)}
+      page = @browser.get("#{$1}#{$2}")
+      tweet = page.at(".entry-content").inner_text
+      tweeter = page.at("a.screen-name").inner_text
+      "[@#{tweeter}] \2#{tweet}"
+      
+    else
+      page = @browser.get(url)
+      get_title_from_html(page.body)
+    end
+
+  rescue Mechanize::ResponseCodeError => e
+
+    e.message
+
+  end
+
+  def get_title_from_html(pagedata)
+    return unless TITLE_RE.match(pagedata)
+    title = $1.strip.gsub(/\s*\n+\s*/, " ")
+    title = unescape_title title
+    title = title[0..255] if title.length > 255
+    "title: \2#{title}\2"
+  end
+
+  def unescape_title(raw_title)
+    p [:raw_title, raw_title]
+
+    # first pass -- let CGI have a crack at it...
+    raw_title = CGI::unescapeHTML raw_title
+    
+    # second pass -- fix things that won't display as ASCII...
+    raw_title.gsub(/(&([\w\d#]+?);)/) {
+        symbol = $2
+        
+        # remove the 0-paddng from unicode integers
+        if symbol =~ /#(.+)/
+            symbol = "##{$1.to_i.to_s}"
+        end
+        
+        # output the symbol's irc-translated character, or a * if it's unknown
+        UNESCAPE_TABLE[symbol] || '*'
+    }
+  end
+
+  def old_get_title(url, depth=10, max_bytes=400000)
     
     easy = Curl::Easy.new(url) do |c|
       # Gotta put yourself out there...
@@ -165,32 +218,4 @@ class UrlHandler < Marvin::CommandHandler
     
   end
   
-  def get_title_from_html(pagedata)
-    return unless TITLE_RE.match(pagedata)
-    title = $1.strip.gsub(/\s*\n+\s*/, " ")
-    title = unescape_title title
-    title = title[0..255] if title.length > 255
-    "title: \2#{title}\2"
-  end
-
-  def unescape_title(raw_title)
-    p [:raw_title, raw_title]
-
-    # first pass -- let CGI have a crack at it...
-    raw_title = CGI::unescapeHTML raw_title
-    
-    # second pass -- fix things that won't display as ASCII...
-    raw_title.gsub(/(&([\w\d#]+?);)/) {
-        symbol = $2
-        
-        # remove the 0-paddng from unicode integers
-        if symbol =~ /#(.+)/
-            symbol = "##{$1.to_i.to_s}"
-        end
-        
-        # output the symbol's irc-translated character, or a * if it's unknown
-        UNESCAPE_TABLE[symbol] || '*'
-    }
-  end
-
 end
