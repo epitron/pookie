@@ -15,7 +15,7 @@ class Marvin
   end
 end
 
-load "url_handler.rb"
+load "#{__DIR__}/../handlers/url_handler.rb"
 
 def message(line)
   $u ||= UrlHandler.new 
