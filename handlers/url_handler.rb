@@ -79,7 +79,7 @@ class UrlHandler < Marvin::CommandHandler
       #title = get_title_for_url urlstr
       title = get_title urlstr
       
-      if title
+      if not title.blank?
         say title, args[:target]
         logger.info title
       else
@@ -105,13 +105,13 @@ class UrlHandler < Marvin::CommandHandler
       tweet = page.at(".entry-content").inner_text
       tweeter = page.at("a.screen-name").inner_text
       "[@#{tweeter}] \2#{tweet}"
-      
+
     else
       page = @browser.get(url)
       get_title_from_html(page.body)
     end
 
-  rescue Mechanize::ResponseCodeError => e
+  rescue Mechanize::ResponseCodeError, SocketError => e
 
     e.message
 
