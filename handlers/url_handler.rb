@@ -95,20 +95,31 @@ class UrlHandler < Marvin::CommandHandler
     thing.to_i.to_s.gsub(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
   end
   
-  def get_title(url)
-
+  def browser
     @browser ||= Browser.new
+  end
+
+  def get_title(url)
 
     case url
     when %r{(https?://twitter.com/)(?:#!/)?(.+/status/\d+)}
-      page = @browser.get("#{$1}#{$2}")
+      page = browser.get("#{$1}#{$2}")
       tweet = page.at(".entry-content").inner_text
       tweeter = page.at("a.screen-name").inner_text
       "[@#{tweeter}] \2#{tweet}"
 
     else
-      page = @browser.get(url)
-      get_title_from_html(page.body)
+      info         = browser.agent.head(url)
+      content_type = info.header["content-type"]
+
+      if content_type and content_type =~ /^text\//
+        page = browser.get(url, :size=>4096)
+        get_title_from_html(page.body)
+      else
+        # content doesn't have a title, just display the info
+        content_length = info.header["content-length"].to_i
+        return "type: \2#{content_type}\2#{content_length <= 0 ? "" : ", size: \2#{commatize(content_length)} bytes\2"}"
+      end
     end
 
   rescue Mechanize::ResponseCodeError, SocketError => e
