@@ -1,6 +1,7 @@
 require 'epitools'
 require 'pry'
 require 'logger'
+require 'epitools'
 
 class Marvin
   class CommandHandler
@@ -29,3 +30,5 @@ def message(line)
 end
 
 p message("http://fffffffffffffzzzzzzzfffffffffffafafarrejrj23.net/badurl")
+p message("http://google.com/")
+p message("http://files.redux.com/images/9185b525dbd774fe49587d2399cc8809/raw")
