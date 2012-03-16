@@ -6,6 +6,7 @@
 require 'epitools'
 require 'mechanize'
 require 'cgi'
+require 'logger'
 
 #############################################################################
 # Monkeypatches
