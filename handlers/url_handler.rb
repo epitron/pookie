@@ -110,14 +110,13 @@ class HTMLParser < Mechanize::Page
 
   TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
   
-  def title
+  def get_title
     # Generic parser
     titles = search("title")
     if titles.any?
       title = titles.first.clean_text
-      title = unescape_title title
       title = title[0..255] if title.length > 255
-      #get_title_from_html(body)
+      title
     else
       nil
     end
@@ -127,23 +126,22 @@ class HTMLParser < Mechanize::Page
     case uri.to_s
     when %r{(https?://twitter.com/)(?:#!/)?(.+/status/\d+)}
       # Twitter parser
-      page = mech.get("#{$1}#{$2}")
-      tweet = page.at(".entry-content").clean_text
+      page    = mech.get("#{$1}#{$2}")
+      tweet   = page.at(".entry-content").clean_text
       tweeter = page.at("a.screen-name").clean_text
       "tweet: <\2@#{tweeter}\2> #{tweet}"
 
     when %r{https?://(www.)?youtube.com/watch\?}
       views = at("span.watch-view-count").clean_text
-      date = at("#eow-date").clean_text
+      date  = at("#eow-date").clean_text
       likes = at("span.watch-likes-dislikes").clean_text
-      time = at("span.video-time").clean_text
+      time  = at("span.video-time").clean_text
       title = at("#eow-title").clean_text
       "video: \2#{title}\2 (#{time}, posted: #{date}) / #{views} views (#{likes})"
 
     else
-      "title: \2#{title}\2"
+      "title: \2#{get_title}\2"
     end
-
   end
 
   #--------------------------------------------------------------------------
