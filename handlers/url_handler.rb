@@ -4,12 +4,15 @@
 
 #require 'curb'
 require 'epitools'
+require 'mechanize'
 require 'cgi'
 
-class UrlHandler < Marvin::CommandHandler
+#############################################################################
+# Monkeypatches
+#############################################################################
 
-  TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
-  
+class String
+
   UNESCAPE_TABLE = {
     'nbsp'  => ' ',
     'ndash' => '-',
@@ -29,7 +32,137 @@ class UrlHandler < Marvin::CommandHandler
     '#39'   => "'",
     '#8217' => "'",
   }
+
+  def translate_html_entities
+    # first pass -- let CGI have a crack at it...
+    raw_title = CGI::unescapeHTML(self)
+    
+    # second pass -- fix things that won't display as ASCII...
+    raw_title.gsub(/(&([\w\d#]+?);)/) do
+      symbol = $2
+      
+      # remove the 0-paddng from unicode integers
+      if symbol =~ /#(.+)/
+        symbol = "##{$1.to_i.to_s}"
+      end
+      
+      # output the symbol's irc-translated character, or a * if it's unknown
+      UNESCAPE_TABLE[symbol] || '*'
+    end
+  end
+
+end
+
+class Nokogiri::XML::Element
+
+  def clean_text
+    if inner_text
+      inner_text.strip.gsub(/\s*\n+\s*/, " ").translate_html_entities
+    else
+      nil
+    end
+  end
+
+end
+
+#############################################################################
+# Generic link info
+class Mechanize::Download
+  def size
+    header["content-length"].to_i
+  end
+
+  def link_info
+    content_length = header["content-length"].to_i
+    "type: \2#{content_type}\2#{content_length <= 0 ? "" : ", size: \2#{content_length.commatize} bytes\2"}"
+  end
+end
+
+#############################################################################
+# Image info
+class ImageParser < Mechanize::Download
+
+  def peek(amount=4096)
+    unless @result
+      @result = body_io.read(amount)
+      body_io.close
+    end
+    
+    @result
+  end
+
+  def link_info
+    tmp = Path.tempfile
+    tmp << peek(500)
+
+    # avatar_6786.png PNG 80x80 80x80+0+0 8-bit DirectClass 15.5KB 0.000u 0:00.000
+    filename, type, dimensions, *extra = `identify #{tmp}`.split
+
+    "info: \2#{dimensions} #{type}\2 (#{size.commatize} bytes)"
+  end
+
+end
+
+#############################################################################
+# HTML link info
+class HTMLParser < Mechanize::Page
+
+  TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
   
+  def title
+    # Generic parser
+    titles = search("title")
+    if titles.any?
+      title = titles.first.clean_text
+      title = unescape_title title
+      title = title[0..255] if title.length > 255
+      #get_title_from_html(body)
+    else
+      nil
+    end
+  end
+  
+  def link_info
+    case uri.to_s
+    when %r{(https?://twitter.com/)(?:#!/)?(.+/status/\d+)}
+      # Twitter parser
+      page = mech.get("#{$1}#{$2}")
+      tweet = page.at(".entry-content").clean_text
+      tweeter = page.at("a.screen-name").clean_text
+      "tweet: <\2@#{tweeter}\2> #{tweet}"
+
+    when %r{https?://(www.)?youtube.com/watch\?}
+      views = at("span.watch-view-count").clean_text
+      date = at("#eow-date").clean_text
+      likes = at("span.watch-likes-dislikes").clean_text
+      time = at("span.video-time").clean_text
+      title = at("#eow-title").clean_text
+      "video: \2#{title}\2 (#{time}, posted: #{date}) / #{views} views (#{likes})"
+
+    else
+      "title: \2#{title}\2"
+    end
+
+  end
+
+  #--------------------------------------------------------------------------
+
+  def get_title_from_html(pagedata)
+    return unless TITLE_RE.match(pagedata)
+    title = $1.strip.gsub(/\s*\n+\s*/, " ")
+    title = unescape_title title
+    title = title[0..255] if title.length > 255
+    "title: \2#{title}\2"
+  end
+
+end
+
+#############################################################################
+# The Plugin
+#############################################################################
+
+class UrlHandler < Marvin::CommandHandler
+
   HTTP_STATUS_CODES = {
     000 => "Incomplete/Undefined error",
     201 => "Created",
@@ -56,11 +189,15 @@ class UrlHandler < Marvin::CommandHandler
     503 => "Service unavailable",
   }
 
+  URL_MATCHER_RE = %r{((f|ht)tps?://.*?)(?:\s|$)}i
+
   IGNORE_NICKS = [
     /^CIA-\d+$/,
     /^travis-ci/,
     /^buttslave/,
   ]
+
+  #--------------------------------------------------------------------------
 
   ### Handle All Lines of Chat ############################
 
@@ -72,90 +209,48 @@ class UrlHandler < Marvin::CommandHandler
 
     p args
 
-    if args[:message] =~ /((f|ht)tps?:\/\/.*?)(?:\s|$)/i
-      urlstr = $1
+    if args[:message] =~ URL_MATCHER_RE
+      urlstr = $1.gsub(/([\)}\],.;!?]|\.{2,3})$/, '')
       
-      logger.info "Getting title for #{urlstr}..."
+      logger.info "Getting info for #{urlstr}..."
       
       #title = get_title_for_url urlstr
-      title = get_title urlstr
+      page = agent.get(urlstr)
+      #title = get_title urlstr
       
-      if not title.blank?
+      if page.respond_to? :link_info
+        title = page.link_info
         say title, args[:target]
         logger.info title
       else
-        logger.info "Title not found!"
+        logger.info "Link info not found!"
       end        
       
-    end
-  end
-
-  ### Private methods... ###############################
-  
-  def commatize(thing)
-    thing.to_i.to_s.gsub(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
-  end
-  
-  def browser
-    @browser ||= Browser.new
-  end
-
-  def get_title(url)
-
-    case url
-    when %r{(https?://twitter.com/)(?:#!/)?(.+/status/\d+)}
-      page = browser.get("#{$1}#{$2}")
-      tweet = page.at(".entry-content").inner_text
-      tweeter = page.at("a.screen-name").inner_text
-      "[@#{tweeter}] \2#{tweet}"
-
-    else
-      info         = browser.agent.head(url)
-      content_type = info.header["content-type"]
-
-      if content_type and content_type =~ /^text\//
-        page = browser.get(url, :size=>4096)
-        get_title_from_html(page.body)
-      else
-        # content doesn't have a title, just display the info
-        content_length = info.header["content-length"].to_i
-        return "type: \2#{content_type}\2#{content_length <= 0 ? "" : ", size: \2#{commatize(content_length)} bytes\2"}"
-      end
     end
 
   rescue Mechanize::ResponseCodeError, SocketError => e
 
-    e.message
+    say "Error: #{e.message}"
 
   end
 
-  def get_title_from_html(pagedata)
-    return unless TITLE_RE.match(pagedata)
-    title = $1.strip.gsub(/\s*\n+\s*/, " ")
-    title = unescape_title title
-    title = title[0..255] if title.length > 255
-    "title: \2#{title}\2"
+  ### Private methods... ###############################
+  
+  #--------------------------------------------------------------------------
+
+  def agent
+    @agent ||= Mechanize.new do |a|
+      a.pluggable_parser["image"] = ImageParser
+      a.pluggable_parser.html     = HTMLParser
+
+      a.user_agent_alias          = "Windows IE 7"
+      a.max_history               = 0
+      a.log                       = Logger.new $stdout # FIXME: Assign this to the Marvin logger
+    end
   end
 
-  def unescape_title(raw_title)
-    p [:raw_title, raw_title]
+  #--------------------------------------------------------------------------
 
-    # first pass -- let CGI have a crack at it...
-    raw_title = CGI::unescapeHTML raw_title
-    
-    # second pass -- fix things that won't display as ASCII...
-    raw_title.gsub(/(&([\w\d#]+?);)/) {
-        symbol = $2
-        
-        # remove the 0-paddng from unicode integers
-        if symbol =~ /#(.+)/
-            symbol = "##{$1.to_i.to_s}"
-        end
-        
-        # output the symbol's irc-translated character, or a * if it's unknown
-        UNESCAPE_TABLE[symbol] || '*'
-    }
-  end
   
 =begin
   def old_get_title(url, depth=10, max_bytes=400000)
