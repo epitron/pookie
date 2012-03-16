@@ -59,6 +59,7 @@ class UrlHandler < Marvin::CommandHandler
   IGNORE_NICKS = [
     /^CIA-\d+$/,
     /^travis-ci/,
+    /^buttslave/,
   ]
 
   ### Handle All Lines of Chat ############################
