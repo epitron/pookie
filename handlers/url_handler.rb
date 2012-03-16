@@ -99,7 +99,7 @@ class ImageParser < Mechanize::Download
     # avatar_6786.png PNG 80x80 80x80+0+0 8-bit DirectClass 15.5KB 0.000u 0:00.000
     filename, type, dimensions, *extra = `identify #{tmp}`.split
 
-    "info: \2#{dimensions} #{type}\2 (#{size.commatize} bytes)"
+    "image: \2#{dimensions} #{type}\2 (#{size.commatize} bytes)"
   end
 
 end
@@ -134,10 +134,10 @@ class HTMLParser < Mechanize::Page
     when %r{https?://(www.)?youtube.com/watch\?}
       views = at("span.watch-view-count").clean_text
       date  = at("#eow-date").clean_text
-      likes = at("span.watch-likes-dislikes").clean_text
+      #likes = at("span.watch-likes-dislikes").clean_text
       time  = at("span.video-time").clean_text
       title = at("#eow-title").clean_text
-      "video: \2#{title}\2 (#{time}, posted: #{date}) / #{views} views (#{likes})"
+      "video: \2#{title}\2 (length: \2#{time}\2, date: #{date}, views: #{views})"
 
     else
       "title: \2#{get_title}\2"
