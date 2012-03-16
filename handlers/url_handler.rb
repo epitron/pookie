@@ -2,7 +2,7 @@
 # go along - e.g. dump events etc.
 # options = {:ident=>"i=user", :host=>"unaffiliated/user", :nick=>"User", :message=>"this is a message", :target=>"#pookie-testing"}
 
-require 'curb'
+#require 'curb'
 require 'epitools'
 require 'cgi'
 
@@ -11,23 +11,23 @@ class UrlHandler < Marvin::CommandHandler
   TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
   
   UNESCAPE_TABLE = {
-      'nbsp' => ' ',
-      'ndash' => '-',
-      'mdash' => '-',
-      'amp' => '&',
-      'raquo' => '>>',
-      'laquo' => '<<',
-      'quot' => '"',
-      'micro' => 'u',
-      'copy' => '(c)',
-      'trade' => '(tm)',
-      'reg' => '(R)',
-      '#174' => '(R)',
-      '#8220' => '"',
-      '#8221' => '"',
-      '#8212' => '--',
-      '#39' => "'",
-      '#8217' => "'",
+    'nbsp'  => ' ',
+    'ndash' => '-',
+    'mdash' => '-',
+    'amp'   => '&',
+    'raquo' => '>>',
+    'laquo' => '<<',
+    'quot'  => '"',
+    'micro' => 'u',
+    'copy'  => '(c)',
+    'trade' => '(tm)',
+    'reg'   => '(R)',
+    '#174'  => '(R)',
+    '#8220' => '"',
+    '#8221' => '"',
+    '#8212' => '--',
+    '#39'   => "'",
+    '#8217' => "'",
   }
   
   HTTP_STATUS_CODES = {
@@ -155,7 +155,8 @@ class UrlHandler < Marvin::CommandHandler
         UNESCAPE_TABLE[symbol] || '*'
     }
   end
-
+  
+=begin
   def old_get_title(url, depth=10, max_bytes=400000)
     
     easy = Curl::Easy.new(url) do |c|
@@ -228,5 +229,6 @@ class UrlHandler < Marvin::CommandHandler
     end
     
   end
-  
+=end
+
 end
