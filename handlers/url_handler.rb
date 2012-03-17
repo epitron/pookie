@@ -73,9 +73,12 @@ class Mechanize::Download
     header["content-length"].to_i
   end
 
+  def mimetype
+    header["content-type"]
+  end
+
   def link_info
-    content_length = header["content-length"].to_i
-    "type: \2#{content_type}\2#{content_length <= 0 ? "" : ", size: \2#{content_length.commatize} bytes\2"}"
+    "type: \2#{mimetype}\2#{size <= 0 ? "" : ", size: \2#{size.commatize} bytes\2"}"
   end
 end
 
@@ -94,12 +97,16 @@ class ImageParser < Mechanize::Download
 
   def link_info
     tmp = Path.tempfile
-    tmp << peek(500)
+    tmp << peek
 
     # avatar_6786.png PNG 80x80 80x80+0+0 8-bit DirectClass 15.5KB 0.000u 0:00.000
     filename, type, dimensions, *extra = `identify #{tmp}`.split
 
-    "image: \2#{dimensions} #{type}\2 (#{size.commatize} bytes)"
+    if dimensions and type
+      "image: \2#{dimensions} #{type}\2 (#{size.commatize} bytes)"
+    else
+      "image: \2#{mimetype}\2 (#{size.commatize} bytes)"
+    end
   end
 
 end
@@ -129,6 +136,7 @@ class HTMLParser < Mechanize::Page
       page    = mech.get("#{$1}#{$2}")
       tweet   = page.at(".entry-content").clean_text
       tweeter = page.at("a.screen-name").clean_text
+
       "tweet: <\2@#{tweeter}\2> #{tweet}"
 
     when %r{https?://(www.)?youtube.com/watch\?}
@@ -137,10 +145,15 @@ class HTMLParser < Mechanize::Page
       #likes = at("span.watch-likes-dislikes").clean_text
       time  = at("span.video-time").clean_text
       title = at("#eow-title").clean_text
-      "video: \2#{title}\2 (length: \2#{time}\2, date: #{date}, views: #{views})"
+
+      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, posted: \2#{date}\2)"
 
     else
-      "title: \2#{get_title}\2"
+      if title = get_title
+        "title: \2#{title}\2"
+      else
+        nil
+      end
     end
   end
 
@@ -201,8 +214,6 @@ class UrlHandler < Marvin::CommandHandler
   ### Handle All Lines of Chat ############################
 
   #on_event :incoming_message, :look_for_url
-  #desc "Looks for urls and displays the titles."
-  #def look_for_url
   def handle_incoming_message(args)
     return if IGNORE_NICKS.any?{|pattern| args[:nick] =~ pattern}
 
@@ -217,8 +228,7 @@ class UrlHandler < Marvin::CommandHandler
       page = agent.get(urlstr)
       #title = get_title urlstr
       
-      if page.respond_to? :link_info
-        title = page.link_info
+      if page.respond_to? :link_info and title = page.link_info
         say title, args[:target]
         logger.info title
       else
