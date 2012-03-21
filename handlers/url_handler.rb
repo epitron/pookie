@@ -130,8 +130,10 @@ class HTMLParser < Mechanize::Page
   end
   
   def link_info
+    p uri.to_s
+
     case uri.to_s
-    when %r{(https?://twitter.com/)(?:#!/)?(.+/status/\d+)}
+    when %r{(https?://twitter\.com/)(?:#!/)?(.+/status/\d+)}
       # Twitter parser
       page    = mech.get("#{$1}#{$2}")
       tweet   = page.at(".entry-content").clean_text
@@ -139,7 +141,19 @@ class HTMLParser < Mechanize::Page
 
       "tweet: <\2@#{tweeter}\2> #{tweet}"
 
-    when %r{https?://(www.)?youtube.com/watch\?}
+    when %r{https?://(?:www\.)?github\.com/(.+?)/(.+?)$}
+      page     = mech.get(uri.to_s)
+
+      forks    = page.at(".repo-stats .forks").clean_text
+      watchers = page.at(".repo-stats .watchers").clean_text
+      
+      desc     = page.at("#repository_description")
+      desc.at("span").remove
+      desc     = desc.clean_text
+
+      "github: \2#{$1}/#{$2}\2 - #{desc} (watchers: \2#{watchers}\2, forks: \2#{forks}\2)"
+
+    when %r{https?://(www\.)?youtube\.com/watch\?}
       views = at("span.watch-view-count").clean_text
       date  = at("#eow-date").clean_text
       #likes = at("span.watch-likes-dislikes").clean_text

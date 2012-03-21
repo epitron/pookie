@@ -35,7 +35,8 @@ end
 
 #test "http://fffffffffffffzzzzzzzfffffffffffafafarrejrj23.net/badurl"
 #test "http://google.com/)"
-test "http://www.youtube.com/watch?v=EDagAmVdbO8"
+#test "http://www.youtube.com/watch?v=EDagAmVdbO8"
+test "https://github.com/rapportive-oss/git-bits"
 #test "https://twitter.com/#!/cxdig/status/180789837501169665"
 #test "http://snltranscripts.jt.org/01/01jbestlist.phtml"
 #test "http://i.imgur.com/3JCsv.jpg"
