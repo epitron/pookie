@@ -97,7 +97,8 @@ class ImageParser < Mechanize::Download
 
   def link_info
     tmp = Path.tempfile
-    tmp << peek
+    #tmp << peek
+    tmp << body
 
     # avatar_6786.png PNG 80x80 80x80+0+0 8-bit DirectClass 15.5KB 0.000u 0:00.000
     filename, type, dimensions, *extra = `identify #{tmp}`.split
