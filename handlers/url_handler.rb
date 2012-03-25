@@ -104,7 +104,7 @@ class ImageParser < Mechanize::Download
     filename, type, dimensions, *extra = `identify #{tmp}`.split
 
     if dimensions and type
-      "image: \2#{dimensions} #{type}\2 (#{size.commatize} bytes)"
+      "image: \2#{dimensions} #{type}\2 (#{tmp.size.commatize} bytes)"
     else
       "image: \2#{mimetype}\2 (#{size.commatize} bytes)"
     end

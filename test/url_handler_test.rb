@@ -1,7 +1,5 @@
 require 'epitools'
-require 'pry'
 require 'logger'
-require 'epitools'
 
 class Marvin
   class CommandHandler
@@ -42,4 +40,4 @@ end
 #test "http://i.imgur.com/3JCsv.jpg"
 #test "http://files.redux.com/images/9185b525dbd774fe49587d2399cc8809/raw"
 #test "http://wuub.net/sublimerepl/debian1.png"
-test "http://www.velvetglove.org/misc/macros/superslam.jpg"
+#test "http://www.velvetglove.org/misc/macros/superslam.jpg"
