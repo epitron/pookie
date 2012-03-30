@@ -142,6 +142,16 @@ class HTMLParser < Mechanize::Page
 
       "tweet: <\2@#{tweeter}\2> #{tweet}"
 
+    when %r{(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
+      page      = mech.get("#{$1}#{$2}")
+      username  = $2
+      fullname  = page.at("ul.entry-author li span.fn").clean_text
+      followers = page.at("span#follower_count").clean_text
+      following = page.at("span#following_count").clean_text
+      tweets    = page.at("span#update_count").clean_text
+
+      "tweeter: @\2#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
+
     when %r{https?://(?:www\.)?github\.com/(.+?)/(.+?)$}
       page     = mech.get(uri.to_s)
 
