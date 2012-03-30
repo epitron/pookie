@@ -172,10 +172,12 @@ class HTMLParser < Mechanize::Page
       title = at("#eow-title").clean_text
 
       "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, posted: \2#{date}\2)"
+      #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"
 
     else
       if title = get_title
         "title: \2#{title}\2"
+        #"< #{title} >"
       else
         nil
       end
@@ -276,10 +278,11 @@ class UrlHandler < Marvin::CommandHandler
     @agent ||= Mechanize.new do |a|
       a.pluggable_parser["image"] = ImageParser
       a.pluggable_parser.html     = HTMLParser
-
+      
       a.user_agent_alias          = "Windows IE 7"
       a.max_history               = 0
       a.log                       = Logger.new $stdout # FIXME: Assign this to the Marvin logger
+      a.verify_mode               = OpenSSL::SSL::VERIFY_NONE
     end
   end
 
