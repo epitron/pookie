@@ -7,6 +7,7 @@ require 'epitools'
 require 'mechanize'
 require 'cgi'
 require 'logger'
+require 'json'
 
 #############################################################################
 # Monkeypatches
