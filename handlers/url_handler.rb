@@ -265,9 +265,9 @@ class HTMLParser < Mechanize::Page
       date     = video.published.strftime("%Y-%m-%d")
       time     = video.length.to_hms
       title    = video.title
-      rating   = video.rating
+      rating   = "%0.1f" % video.rating
 
-      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: #{rating.round(1)}, posted: \2#{date}\2)"
+      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: #{rating}, posted: \2#{date}\2)"
       #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"
 
     else
