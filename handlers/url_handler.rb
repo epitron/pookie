@@ -133,8 +133,8 @@ class YouTubeVideo < Struct.new(
     self.description  = media["media$description"]["$t"]
     self.length       = media["yt$duration"]["seconds"].to_i
     self.user         = rec["author"].first["name"]["$t"]
-    self.published    = DateTime.rfc3339 rec["published"]["$t"]
-    self.updated      = DateTime.rfc3339 rec["updated"]["$t"]
+    self.published    = DateTime.parse rec["published"]["$t"]
+    self.updated      = DateTime.parse rec["updated"]["$t"]
     self.rating       = rec["gd$rating"]["average"]
     self.raters       = rec["gd$rating"]["numRaters"]
     self.keywords     = rec["media$group"]["media$keywords"]["$t"]
