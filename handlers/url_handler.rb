@@ -267,7 +267,7 @@ class HTMLParser < Mechanize::Page
       title    = video.title
       rating   = "%0.1f" % video.rating
 
-      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: #{rating}, posted: \2#{date}\2)"
+      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
       #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"
 
     else
