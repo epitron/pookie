@@ -52,6 +52,38 @@ class String
     end
   end
 
+  def to_params
+    CGI.parse(self).map_values do |v|
+      # CGI.parse wraps every value in an array. Unwrap them!
+      if v.is_a?(Array) and v.size == 1
+        v.first
+      else
+        v 
+      end
+    end      
+  end
+end
+
+class Integer
+
+  def to_hms
+    seconds = self
+
+    days, seconds    = seconds.divmod(86400)
+    hours, seconds   = seconds.divmod(3600)
+    minutes, seconds = seconds.divmod(60)
+
+    result = "%0.2d:%0.2d" % [minutes,seconds]
+    result = ("%0.2d:" % hours) + result   if hours > 0 or days > 0
+    result = ("%0.2d:" % days) + result    if days > 0
+
+    result
+  end
+
+  def commatize  
+    to_s.gsub(/(\d)(?=\d{3}+(?:\.|$))(\d{3}\..*)?/,'\1,\2')
+  end
+
 end
 
 class Nokogiri::XML::Element
@@ -64,6 +96,58 @@ class Nokogiri::XML::Element
     end
   end
 
+end
+
+class NilClass
+  #
+  # A simple way to make it so missing fields nils don't cause the app the explode. 
+  #
+  #def [](*args)
+  #  nil
+  #end
+end
+
+class YouTubeVideo < Struct.new(
+                :title,
+                :thumbnails,
+                :link,
+                :description,
+                :length,
+                :user,
+                :published,
+                :updated,
+                :rating,
+                :raters,
+                :keywords,
+                :favorites,
+                :views
+              )
+
+  def initialize(rec)
+  
+    media = rec["media$group"]
+    
+    self.title        = media["media$title"]["$t"]
+    self.thumbnails   = media["media$thumbnail"].map{|r| r["url"]}
+    self.link         = media["media$player"].first["url"].gsub('&feature=youtube_gdata_player','')
+    self.description  = media["media$description"]["$t"]
+    self.length       = media["yt$duration"]["seconds"].to_i
+    self.user         = rec["author"].first["name"]["$t"]
+    self.published    = DateTime.rfc3339 rec["published"]["$t"]
+    self.updated      = DateTime.rfc3339 rec["updated"]["$t"]
+    self.rating       = rec["gd$rating"]["average"]
+    self.raters       = rec["gd$rating"]["numRaters"]
+    self.keywords     = rec["media$group"]["media$keywords"]["$t"]
+    self.favorites    = rec["yt$statistics"]["favoriteCount"].to_i
+    self.views        = rec["yt$statistics"]["viewCount"].to_i
+  end
+  
+end
+
+module URI
+  def params
+    query.to_params
+  end
 end
 
 #############################################################################
@@ -165,13 +249,24 @@ class HTMLParser < Mechanize::Page
       "github: \2#{$1}/#{$2}\2 - #{desc} (watchers: \2#{watchers}\2, forks: \2#{forks}\2)"
 
     when %r{https?://(www\.)?youtube\.com/watch\?}
-      views = at("span.watch-view-count").clean_text
-      date  = at("#eow-date").clean_text
-      #likes = at("span.watch-likes-dislikes").clean_text
-      time  = at("span.video-time").clean_text
-      title = at("#eow-title").clean_text
+      #views = at("span.watch-view-count").clean_text
+      #date  = at("#eow-date").clean_text
+      #time  = at("span.video-time").clean_text
+      #title = at("#eow-title").clean_text
 
-      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, posted: \2#{date}\2)"
+      video_id = uri.params["v"]
+      page     = mech.get("http://gdata.youtube.com/feeds/api/videos/#{video_id}?v=1&alt=json")
+      json     = page.body.from_json
+      
+      video    = YouTubeVideo.new(json["entry"])
+      
+      views    = video.views.commatize
+      date     = video.published.strftime("%Y-%m-%d")
+      time     = video.length.to_hms
+      title    = video.title
+      rating   = video.rating
+
+      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: #{rating.round(1)}, posted: \2#{date}\2)"
       #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"
 
     else
