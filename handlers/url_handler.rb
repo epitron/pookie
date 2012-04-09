@@ -103,9 +103,9 @@ class NilClass
   #
   # A simple way to make it so missing fields nils don't cause the app the explode. 
   #
-  #def [](*args)
-  #  nil
-  #end
+  def [](*args)
+    nil
+  end
 end
 
 class YouTubeVideo < Struct.new(
@@ -265,7 +265,7 @@ class HTMLParser < Mechanize::Page
       date     = video.published.strftime("%Y-%m-%d")
       time     = video.length.to_hms
       title    = video.title
-      rating   = "%0.1f" % video.rating
+      rating   = video.rating ? "%0.1f" % video.rating : "?"
 
       "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
       #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"

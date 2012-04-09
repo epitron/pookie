@@ -34,7 +34,7 @@ end
 
 #test "http://fffffffffffffzzzzzzzfffffffffffafafarrejrj23.net/badurl"
 #test "http://google.com/)"
-test "http://www.youtube.com/watch?v=EDagAmVdbO8"
+#test "http://www.youtube.com/watch?v=EDagAmVdbO8"
 #test "https://github.com/rapportive-oss/git-bits"
 #test "https://twitter.com/#!/cxdig/status/180789837501169665"
 #test "http://snltranscripts.jt.org/01/01jbestlist.phtml"
@@ -44,3 +44,4 @@ test "http://www.youtube.com/watch?v=EDagAmVdbO8"
 #test "https://twitter.com/#!/StephenMalkmus1"
 #test "http://www.velvetglove.org/misc/macros/superslam.jpg"
 #test "https://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Installation_Guide/ch-upgrade-x86.html"
+test "http://www.youtube.com/watch?v=nafScTaNa3k"
