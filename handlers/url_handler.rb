@@ -221,33 +221,37 @@ class HTMLParser < Mechanize::Page
     case uri.to_s
     when %r{(https?://twitter\.com/)(?:#!/)?(.+/status/\d+)}
       # Twitter parser
-      page    = mech.get("#{$1}#{$2}")
+      newurl  = "#{$1}#{$2}"
+      page    = mech.get(newurl)
+
       tweet   = page.at(".entry-content").clean_text
       tweeter = page.at("a.screen-name").clean_text
 
       "tweet: <\2@#{tweeter}\2> #{tweet}"
 
     when %r{(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
-      page      = mech.get("#{$1}#{$2}")
+      newurl    = "#{$1}#{$2}"
+      page      = mech.get(newurl)
+
       username  = $2
       fullname  = page.at("ul.entry-author li span.fn").clean_text
       followers = page.at("span#follower_count").clean_text
       following = page.at("span#following_count").clean_text
       tweets    = page.at("span#update_count").clean_text
-
+      
       "tweeter: @\2#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
 
-    when %r{https?://(?:www\.)?github\.com/(.+?)/(.+?)$}
-      page     = mech.get(uri.to_s)
-
-      forks    = page.at(".repo-stats .forks").clean_text
-      watchers = page.at(".repo-stats .watchers").clean_text
+    when %r{https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)$}
+      forks    = at(".repo-stats .forks").clean_text
+      watchers = at(".repo-stats .watchers").clean_text
       
-      desc     = page.at("#repository_description")
+      desc     = at("#repository_description")
       desc.at("span").remove
       desc     = desc.clean_text
 
       "github: \2#{$1}/#{$2}\2 - #{desc} (watchers: \2#{watchers}\2, forks: \2#{forks}\2)"
+
+    #when %r{https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)/blob/(.+)$}
 
     when %r{https?://(www\.)?youtube\.com/watch\?}
       #views = at("span.watch-view-count").clean_text

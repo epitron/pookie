@@ -44,4 +44,5 @@ end
 #test "https://twitter.com/#!/StephenMalkmus1"
 #test "http://www.velvetglove.org/misc/macros/superslam.jpg"
 #test "https://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Installation_Guide/ch-upgrade-x86.html"
-test "http://www.youtube.com/watch?v=nafScTaNa3k"
+#test "http://www.youtube.com/watch?v=nafScTaNa3k"
+test "https://github.com/rapid7/metasploit-framework/blob/master/lib/metasm/metasm/exe_format/elf.rb"
