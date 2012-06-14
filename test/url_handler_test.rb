@@ -8,7 +8,7 @@ class Marvin
 	  def logger
 	    @logger ||= Logger.new STDOUT
 	  end
-	  
+
 	  def say(*args)
 	    #puts "<pookie> #{args.inspect}"
 	  end
@@ -19,7 +19,7 @@ end
 load "#{__DIR__}/../handlers/url_handler.rb"
 
 def message(line)
-  $u ||= UrlHandler.new 
+  $u ||= UrlHandler.new
   args = {
     :nick => "testuser",
     :target => "dunno",
@@ -45,4 +45,5 @@ end
 #test "http://www.velvetglove.org/misc/macros/superslam.jpg"
 #test "https://docs.redhat.com/docs/en-US/Red_Hat_Enterprise_Linux/6/html/Installation_Guide/ch-upgrade-x86.html"
 #test "http://www.youtube.com/watch?v=nafScTaNa3k"
-test "https://github.com/rapid7/metasploit-framework/blob/master/lib/metasm/metasm/exe_format/elf.rb"
+#test "https://github.com/rapid7/metasploit-framework/blob/master/lib/metasm/metasm/exe_format/elf.rb"
+test "https://twitter.com/TNG_S8/status/201408246785908736"
