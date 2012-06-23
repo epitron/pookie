@@ -224,10 +224,12 @@ class HTMLParser < Mechanize::Page
       newurl  = "#{$1}#{$2}"
       page    = mech.get(newurl)
 
-      tweet   = page.at(".tweet-text").clean_text
-      tweeter = page.at("a .username").clean_text
+      binding.pry
 
-      "tweet: <\2#{tweeter}\2> #{tweet}"
+      tweet   = page.at(".tweet-text").clean_text
+      tweeter = page.at(".tweet")["data-screen-name"]
+
+      "tweet: <\2@#{tweeter}\2> #{tweet}"
 
     when %r{(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
       newurl    = "#{$1}#{$2}"
