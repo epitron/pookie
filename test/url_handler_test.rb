@@ -48,4 +48,5 @@ end
 #test "https://github.com/rapid7/metasploit-framework/blob/master/lib/metasm/metasm/exe_format/elf.rb"
 #test "https://twitter.com/TNG_S8/status/201408246785908736"
 #test "https://www.youtube.com/watch?v=TR8TjCncvIw"
-test "https://twitter.com/conradirwin/status/216308529101930496"
+#test "https://twitter.com/conradirwin/status/216308529101930496"
+test "http://www.wired.com/business/2012/06/khan-academy"
