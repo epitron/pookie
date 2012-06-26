@@ -224,8 +224,6 @@ class HTMLParser < Mechanize::Page
       newurl  = "#{$1}#{$2}"
       page    = mech.get(newurl)
 
-      binding.pry
-
       tweet   = page.at(".tweet-text").clean_text
       tweeter = page.at(".tweet")["data-screen-name"]
 
