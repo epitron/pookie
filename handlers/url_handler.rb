@@ -327,8 +327,6 @@ class UrlHandler < Marvin::CommandHandler
     503 => "Service unavailable",
   }
 
-  URL_MATCHER_RE = %r{((f|ht)tps?://.*?)(?:\s|$)}i
-
   IGNORE_NICKS = [
     /^CIA-\d+$/,
     /^travis-ci/,
@@ -345,14 +343,14 @@ class UrlHandler < Marvin::CommandHandler
 
     p args
 
-    if args[:message] =~ URL_MATCHER_RE
-      urlstr = $1.gsub(/([\)}\],.;!?]|\.{2,3})$/, '')
+    url_list = URI.extract(args[:message])
 
-      logger.info "Getting info for #{urlstr}..."
+    url_list.each do |url|
+      logger.info "Getting info for #{url}..."
 
-      #title = get_title_for_url urlstr
-      page = agent.get(urlstr)
-      #title = get_title urlstr
+      #title = get_title_for_url url
+      page = agent.get(url)
+      #title = get_title url
 
       if page.respond_to? :link_info and title = page.link_info
         say title, args[:target]
@@ -360,7 +358,6 @@ class UrlHandler < Marvin::CommandHandler
       else
         logger.info "Link info not found!"
       end
-
     end
 
   rescue Mechanize::ResponseCodeError, SocketError => e
