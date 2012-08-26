@@ -50,4 +50,5 @@ end
 #test "https://www.youtube.com/watch?v=TR8TjCncvIw"
 #test "https://twitter.com/conradirwin/status/216308529101930496"
 #test "http://www.wired.com/business/2012/06/khan-academy"
-test "https://twitter.com/worrydream/status/217668956738158594"
+#test "https://twitter.com/worrydream/status/217668956738158594"
+test "http://google.com/ http://twitter.com/ http://slashdot.org/"
