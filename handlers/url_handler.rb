@@ -326,6 +326,8 @@ class UrlHandler < Marvin::CommandHandler
     502 => "Bad gateway",
     503 => "Service unavailable",
   }
+  
+  URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.*?)(?:\s|$)}i
 
   IGNORE_NICKS = [
     /^CIA-\d+$/,
@@ -343,14 +345,12 @@ class UrlHandler < Marvin::CommandHandler
 
     p args
 
-    url_list = URI.extract(args[:message])
+    url_list = args[:message].scan(URL_MATCHER_RE)
 
     url_list.each do |url|
       logger.info "Getting info for #{url}..."
 
-      #title = get_title_for_url url
       page = agent.get(url)
-      #title = get_title url
 
       if page.respond_to? :link_info and title = page.link_info
         say title, args[:target]
@@ -383,81 +383,5 @@ class UrlHandler < Marvin::CommandHandler
   end
 
   #--------------------------------------------------------------------------
-
-
-=begin
-  def old_get_title(url, depth=10, max_bytes=400000)
-
-    easy = Curl::Easy.new(url) do |c|
-      # Gotta put yourself out there...
-      c.headers["User-Agent"] = "Curl/Ruby"
-      c.encoding = "gzip,deflate"
-
-      c.verbose = true
-
-      c.follow_location = true
-      c.max_redirects = depth
-
-      c.timeout = 25
-      c.connect_timeout = 10
-      c.enable_cookies = true
-      c.cookiefile = "/tmp/curb.cookies"
-
-      # Allow self-signed certs
-      c.ssl_verify_peer = false
-      c.ssl_verify_host = false
-    end
-
-    logger.debug "[get_title_for_url] HEAD #{url}"
-
-    begin
-      easy.http_head
-    rescue Exception => e
-      return "Title Error: #{e}"
-    end
-
-    okay_codes = [200, 403, 405]
-    code       = easy.response_code
-    unless okay_codes.include? code
-      return "Title Error: #{code} - #{HTTP_STATUS_CODES[code]}"
-    end
-
-    ### HTML page
-    if easy.content_type.nil? or easy.content_type =~ /^text\//
-
-      data = ""
-      easy.on_body do |chunk|
-        # check if we found a title (making sure to include a bit of the last chunk incase the <title> tag got cut in half)
-        found_title = ((data[-7..-1]||"") + chunk) =~ /<title>/
-
-        data << chunk
-
-        if data.size < max_bytes and !found_title
-          # keep reading...
-          chunk.size
-        else
-          # abort!
-          0
-        end
-      end
-
-      begin
-        logger.debug "[get_title_for_url] GET #{url}"
-        easy.url = easy.last_effective_url
-        easy.perform
-      rescue Exception => e
-        logger.debug "RESCUED #{e.inspect}"
-      end
-      return get_title_from_html(data)
-
-    ### Binary file
-    else
-      # content doesn't have title, just display info.
-      size = easy.downloaded_content_length #request_size
-      return "type: \2#{easy.content_type}\2#{size <= 0 ? "" : ", size: \2#{commatize(size)} bytes\2"}"
-    end
-
-  end
-=end
 
 end
