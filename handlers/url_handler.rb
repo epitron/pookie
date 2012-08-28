@@ -353,8 +353,6 @@ class UrlHandler < Marvin::CommandHandler
 
       page = agent.get(url)
 
-      binding.pry
-
       if page.respond_to? :link_info and title = page.link_info
         say title, args[:target]
         logger.info title
