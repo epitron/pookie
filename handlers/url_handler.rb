@@ -153,7 +153,8 @@ end
 
 #############################################################################
 # Generic link info
-class Mechanize::Download
+#class Mechanize::Download
+class Mechanize::File
   def size
     header["content-length"].to_i
   end
@@ -351,6 +352,8 @@ class UrlHandler < Marvin::CommandHandler
       logger.info "Getting info for #{url}..."
 
       page = agent.get(url)
+
+      binding.pry
 
       if page.respond_to? :link_info and title = page.link_info
         say title, args[:target]

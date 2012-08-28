@@ -52,4 +52,5 @@ end
 #test "http://www.wired.com/business/2012/06/khan-academy"
 #test "https://twitter.com/worrydream/status/217668956738158594"
 #test "http://google.com/ http://twitter.com/ http://slashdot.org/"
-test "Asher: http://www.youtube.com/watch?v=yMazI2ROJXM"
+#test "Asher: http://www.youtube.com/watch?v=yMazI2ROJXM"
+test "http://unicode.org/charts/PDF/U2400.pdf"
