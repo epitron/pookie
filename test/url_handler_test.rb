@@ -53,4 +53,6 @@ end
 #test "https://twitter.com/worrydream/status/217668956738158594"
 #test "http://google.com/ http://twitter.com/ http://slashdot.org/"
 #test "Asher: http://www.youtube.com/watch?v=yMazI2ROJXM"
-test "http://unicode.org/charts/PDF/U2400.pdf"
+#test "http://unicode.org/charts/PDF/U2400.pdf"
+#test "http://erlangonxen.org/"
+test "https://twitter.com/oh_rodr/status/258661589232803840"

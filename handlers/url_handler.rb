@@ -226,7 +226,7 @@ class HTMLParser < Mechanize::Page
       page    = mech.get(newurl)
 
       tweet   = page.at(".tweet-text").clean_text
-      tweeter = page.at(".tweet")["data-screen-name"]
+      tweeter = page.at(".permalink-tweet .username").text
 
       "tweet: <\2@#{tweeter}\2> #{tweet}"
 
