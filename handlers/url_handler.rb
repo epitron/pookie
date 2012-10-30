@@ -377,7 +377,9 @@ class UrlHandler < Marvin::CommandHandler
       a.pluggable_parser["image"] = ImageParser
       a.pluggable_parser.html     = HTMLParser
 
-      a.user_agent_alias          = "Windows IE 7"
+      #a.user_agent_alias          = "Windows IE 7"
+      a.user_agent                = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
+
       a.max_history               = 0
       a.log                       = Logger.new $stdout # FIXME: Assign this to the Marvin logger
       a.verify_mode               = OpenSSL::SSL::VERIFY_NONE
