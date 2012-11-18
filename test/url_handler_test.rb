@@ -55,4 +55,5 @@ end
 #test "Asher: http://www.youtube.com/watch?v=yMazI2ROJXM"
 #test "http://unicode.org/charts/PDF/U2400.pdf"
 #test "http://erlangonxen.org/"
-test "https://twitter.com/oh_rodr/status/258661589232803840"
+#test "https://twitter.com/oh_rodr/status/258661589232803840"
+test "https://twitter.com/Giancarlo818"

@@ -228,19 +228,20 @@ class HTMLParser < Mechanize::Page
       tweet   = page.at(".tweet-text").clean_text
       tweeter = page.at(".permalink-tweet .username").text
 
-      "tweet: <\2@#{tweeter}\2> #{tweet}"
+      "tweet: <\2#{tweeter}\2> #{tweet}"
 
     when %r{(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
       newurl    = "#{$1}#{$2}"
       page      = mech.get(newurl)
 
       username  = $2
-      fullname  = page.at("ul.entry-author li span.fn").clean_text
-      followers = page.at("span#follower_count").clean_text
-      following = page.at("span#following_count").clean_text
-      tweets    = page.at("span#update_count").clean_text
+      fullname  = page.at(".user-actions")["data-name"]
 
-      "tweeter: @\2#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
+      tweets    = page.at("ul.stats li a[data-element-term='tweet_stats'] strong").clean_text
+      followers = page.at("ul.stats li a[data-element-term='follower_stats'] strong").clean_text
+      following = page.at("ul.stats li a[data-element-term='following_stats'] strong").clean_text
+
+      "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
 
     when %r{https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)$}
       watchers, forks = search("a.social-count").map(&:clean_text)
