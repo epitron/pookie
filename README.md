@@ -1,4 +1,4 @@
-= pookie
+# pookie
 
 An IRC bot that does two things:
 
@@ -7,19 +7,20 @@ An IRC bot that does two things:
 
 It can connect to many IRC channels on many servers within one process, can extract titles and ratings from YouTube videos, can display information about things without titles (like image resolution, zip file sizes, etc.), can show Tweets directly, and more!
  
-== Installing/Running
+## Installing/Running
 
 To install/run pookie:
 
 1. Get the code (`git clone http://github.com/epitron/pookie.git`)
 2. Run bundler (`bundle install`)
 3. Copy `config/connections.yml-default` to `config/connections.yml`, and edit it to configure what channels/networks pookie connects to.
-4. Run `./go`!
+4. Edit `config/settings.yml` (to name your bot)
+5. Run `./go`!
   
-== Copyright
+## Copyright
 
 Copyright (c) 2009-2012 epitron
 
-== License
+## License
 
 Licensed under the WTFPL2. (See LICENSE for details.)
