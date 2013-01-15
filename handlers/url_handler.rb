@@ -88,15 +88,9 @@ class Integer
 end
 
 class Nokogiri::XML::Element
-
   def clean_text
-    if inner_text
-      inner_text.strip.gsub(/\s*\n+\s*/, " ").translate_html_entities
-    else
-      nil
-    end
+    inner_text.strip.gsub(/\s*\n+\s*/, " ").translate_html_entities if inner_text
   end
-
 end
 
 class NilClass
@@ -335,7 +329,8 @@ class UrlHandler < Marvin::CommandHandler
     /^CIA-\d+$/,
     /^travis-ci/,
     /^buttslave/,
-    /^pry/
+    /^pry/,
+    /^kanzure/
   ]
 
   #--------------------------------------------------------------------------
