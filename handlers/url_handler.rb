@@ -222,9 +222,11 @@ class HTMLParser < Mechanize::Page
 
       # remove extra crap
       paragraphs.search("p span[id='coordinates']").remove
-      # paragraphs.search("a.internal").remove
 
-      # convert to text      
+      # add bolds
+      paragraphs.search("b").each { |e| e.content = "\2#{e.content}\2" }
+
+      # convert to text
       paragraphs = paragraphs.map(&:clean_text).reject(&:blank?)
 
       for paragraph in paragraphs
