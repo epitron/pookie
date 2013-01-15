@@ -214,6 +214,29 @@ class HTMLParser < Mechanize::Page
     p uri.to_s
 
     case uri.to_s
+    when %r{https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
+      title = at("#firstHeading").clean_text
+      sentences = []
+      for paragraph in search("#bodyContent #mw-content-text p")
+        break if sentences.size > 10
+        sentences += paragraph.clean_text.split(/(?<=\.)(?:\[\d+\])* (?=[A-Z0-9])/)
+      end
+
+      # pp sentences 
+
+      summary = sentences.first
+
+      sentences[1..-1].each do |sentence|
+        test = "#{summary} #{sentence}"
+        if test.size < 300
+          summary = test
+        else
+          break
+        end
+      end
+
+      "wikipedia: \2#{title}\2 - #{summary}"
+
     when %r{(https?://twitter\.com/)(?:#!/)?(.+/status/\d+)}
       # Twitter parser
       newurl  = "#{$1}#{$2}"
@@ -329,8 +352,7 @@ class UrlHandler < Marvin::CommandHandler
     /^CIA-\d+$/,
     /^travis-ci/,
     /^buttslave/,
-    /^pry/,
-    /^kanzure/
+    /^pry/
   ]
 
   #--------------------------------------------------------------------------
