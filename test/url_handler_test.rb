@@ -59,3 +59,4 @@ end
 #test "https://twitter.com/Giancarlo818"
 # test "http://en.wikipedia.org/wiki/Chickens"
 test "http://en.wikipedia.org/wiki/Agenda_21"
+# test "http://en.wikipedia.org/wiki/Israel"

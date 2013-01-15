@@ -215,11 +215,21 @@ class HTMLParser < Mechanize::Page
 
     case uri.to_s
     when %r{https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
-      title = at("#firstHeading").clean_text
-      sentences = []
-      for paragraph in search("#bodyContent #mw-content-text p")
+      max_size   = 320
+      title      = at("#firstHeading").clean_text
+      sentences  = []
+      paragraphs = search("#bodyContent #mw-content-text p")
+
+      # remove extra crap
+      paragraphs.search("p span[id='coordinates']").remove
+      # paragraphs.search("a.internal").remove
+
+      # convert to text      
+      paragraphs = paragraphs.map(&:clean_text).reject(&:blank?)
+
+      for paragraph in paragraphs
         break if sentences.size > 10
-        sentences += paragraph.clean_text.split(/(?<=\.)(?:\[\d+\])* (?=[A-Z0-9])/)
+        sentences += paragraph.split(/(?<=\.)(?:\[\d+\])* (?=[A-Z0-9])/)
       end
 
       # pp sentences 
@@ -228,14 +238,16 @@ class HTMLParser < Mechanize::Page
 
       sentences[1..-1].each do |sentence|
         test = "#{summary} #{sentence}"
-        if test.size < 300
-          summary = test
-        else
-          break
-        end
+        break if test.size > max_size
+        summary = test
       end
 
-      "wikipedia: \2#{title}\2 - #{summary}"
+      if summary.size > max_size
+        summary = summary[0..max_size-3] + "..."
+      end
+
+      # "wikipedia: \2#{title}\2 - #{summary}"
+      "wikipedia: #{summary}"
 
     when %r{(https?://twitter\.com/)(?:#!/)?(.+/status/\d+)}
       # Twitter parser
