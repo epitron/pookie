@@ -366,7 +366,8 @@ class UrlHandler < Marvin::CommandHandler
     /^CIA-\d+$/,
     /^travis-ci/,
     /^buttslave/,
-    /^pry/
+    /^pry/,
+    /^Xtopherus/
   ]
 
   #--------------------------------------------------------------------------
