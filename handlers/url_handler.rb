@@ -251,7 +251,7 @@ class HTMLParser < Mechanize::Page
       # "wikipedia: \2#{title}\2 - #{summary}"
       "wikipedia: #{summary}"
 
-    when %r{(https?://twitter\.com/)(?:#!/)?(.+/status/\d+)}
+    when %r{(https?://twitter\.com/)(?:#!/)?(.+/status(?:es)?/\d+)}
       # Twitter parser
       newurl  = "#{$1}#{$2}"
       page    = mech.get(newurl)
