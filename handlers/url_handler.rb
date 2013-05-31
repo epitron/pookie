@@ -256,7 +256,9 @@ class HTMLParser < Mechanize::Page
       newurl  = "#{$1}#{$2}"
       page    = mech.get(newurl)
 
-      tweet   = page.at(".tweet-text").clean_text
+      # tweet   = page.at(".tweet-text").clean_text
+      # inner_text.strip.gsub(/\s*\n+\s*/, " ").translate_html_entities if inner_text
+      tweet   = page.at(".tweet-text").inner_text.strip.gsub(/\n+/, " / ").translate_html_entities
       tweeter = page.at(".permalink-tweet .username").text
 
       "tweet: <\2#{tweeter}\2> #{tweet}"
