@@ -60,4 +60,5 @@ end
 # test "http://en.wikipedia.org/wiki/Chickens"
 # test "http://en.wikipedia.org/wiki/Agenda_21"
 # test "http://en.wikipedia.org/wiki/Israel"
-test "https://twitter.com/stevelosh/status/340183472373129216"
+# test "https://twitter.com/stevelosh/status/340183472373129216"
+test "https://twitter.com/bcardarella/status/343762719880671232"

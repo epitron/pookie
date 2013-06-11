@@ -258,7 +258,7 @@ class HTMLParser < Mechanize::Page
 
       # tweet   = page.at(".tweet-text").clean_text
       # inner_text.strip.gsub(/\s*\n+\s*/, " ").translate_html_entities if inner_text
-      tweet   = page.at(".tweet-text").inner_text.strip.gsub(/\n+/, " / ").translate_html_entities
+      tweet   = page.at(".permalink-tweet .tweet-text").inner_text.strip.gsub(/\n+/, " / ").translate_html_entities
       tweeter = page.at(".permalink-tweet .username").text
 
       "tweet: <\2#{tweeter}\2> #{tweet}"
