@@ -214,7 +214,7 @@ class HTMLParser < Mechanize::Page
     p uri.to_s
 
     case uri.to_s
-    when %r{https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
+    when %r{^https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
       max_size   = 320
       title      = at("#firstHeading").clean_text
       sentences  = []
@@ -251,7 +251,7 @@ class HTMLParser < Mechanize::Page
       # "wikipedia: \2#{title}\2 - #{summary}"
       "wikipedia: #{summary}"
 
-    when %r{(https?://twitter\.com/)(?:#!/)?(.+/status(?:es)?/\d+)}
+    when %r{^(https?://twitter\.com/)(?:#!/)?(.+/status(?:es)?/\d+)}
       # Twitter parser
       newurl  = "#{$1}#{$2}"
       page    = mech.get(newurl)
@@ -263,7 +263,7 @@ class HTMLParser < Mechanize::Page
 
       "tweet: <\2#{tweeter}\2> #{tweet}"
 
-    when %r{(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
+    when %r{^(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
       newurl    = "#{$1}#{$2}"
       page      = mech.get(newurl)
 
@@ -276,7 +276,7 @@ class HTMLParser < Mechanize::Page
 
       "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
 
-    when %r{https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)$}
+    when %r{^https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)$}
       watchers, forks = search("a.social-count").map(&:clean_text)
 
       desc     = at("#repository_description")
@@ -287,7 +287,16 @@ class HTMLParser < Mechanize::Page
 
     #when %r{https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)/blob/(.+)$}
 
-    when %r{https?://(www\.)?youtube\.com/watch\?}
+    when %r{^https?://(www\.)?rottentomatoes\.com/m/.+}
+      title = at(".movie_title").clean_text
+      critics = at(".meter.certified").clean_text
+      popcorn = at(".meter.popcorn").clean_text
+      genres = search("span[itemprop='genre']").map(&:clean_text).join(", ")
+      released = at("span[itemprop='datePublished']")["content"]
+
+      "movie: \b#{title}\b (critics: \b#{critics}%\b, popcorn: \b#{popcorn}\b, released: \b#{released}\b, genres: #{genres})"
+
+    when %r{^https?://(www\.)?youtube\.com/watch\?}
       #views = at("span.watch-view-count").clean_text
       #date  = at("#eow-date").clean_text
       #time  = at("span.video-time").clean_text
