@@ -3,7 +3,7 @@
 # options = {:ident=>"i=user", :host=>"unaffiliated/user", :nick=>"User", :message=>"this is a message", :target=>"#pookie-testing"}
 
 #require 'curb'
-require 'epitools'
+#require 'epitools'
 require 'mechanize'
 require 'cgi'
 require 'logger'
@@ -276,6 +276,7 @@ class HTMLParser < Mechanize::Page
 
       "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
 
+
     when %r{^https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)$}
       watchers, forks = search("a.social-count").map(&:clean_text)
 
@@ -285,16 +286,20 @@ class HTMLParser < Mechanize::Page
 
       "github: \2#{$1}/#{$2}\2 - #{desc} (watchers: \2#{watchers}\2, forks: \2#{forks}\2)"
 
-    #when %r{https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)/blob/(.+)$}
 
     when %r{^https?://(www\.)?rottentomatoes\.com/m/.+}
-      title = at(".movie_title").clean_text
-      critics = at("#all-critics-meter").clean_text
-      popcorn = at(".meter.popcorn").clean_text
-      genres = search("span[itemprop='genre']").map(&:clean_text).join(", ")
-      released = at("span[itemprop='datePublished']")["content"]
+      title          = at(".movie_title").clean_text
+      genres         = search("span[itemprop='genre']").map(&:clean_text).join(", ")
+      released       = at("span[itemprop='datePublished']")["content"]
 
-      "movie: \2#{title}\2 (critics: \2#{critics}%\2, audience: \2#{popcorn}%\2, released: \2#{released}\2, genres: #{genres})"
+      critics        = at("#all-critics-meter").clean_text
+      critic_count   = at("span[itemprop='reviewCount']").clean_text.to_i.commatize
+
+      audience       = at(".meter.popcorn").clean_text
+      audience_count = at("a.fan_side p.critic_stats").clean_text.split.last
+
+      "movie: \2#{title}\2 - rated \2#{critics}%\2 by #{critic_count} critics, \2#{audience}%\2 by #{audience_count} viewers, released: \2#{released}\2, genres: #{genres}"
+
 
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       #views = at("span.watch-view-count").clean_text
