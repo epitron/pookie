@@ -64,4 +64,5 @@ end
 # test "https://twitter.com/bcardarella/status/343762719880671232"
 # test "http://www.rottentomatoes.com/m/this_is_the_end/"
 # test "http://www.rottentomatoes.com/m/v_tumane_2012/"
-test "http://www.rottentomatoes.com/m/20_feet_from_stardom/"
+# test "http://www.rottentomatoes.com/m/20_feet_from_stardom/"
+test "http://www.rottentomatoes.com/m/star_trek_into_darkness/"

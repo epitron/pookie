@@ -298,7 +298,7 @@ class HTMLParser < Mechanize::Page
       audience       = at(".meter.popcorn").clean_text
       audience_count = at("a.fan_side p.critic_stats").clean_text.split.last
 
-      "movie: \2#{title}\2 - rated \2#{critics}%\2 by #{critic_count} critics, \2#{audience}%\2 by #{audience_count} viewers, released: \2#{released}\2, genres: #{genres}"
+      "movie: \2#{title}\2 - ratings: \2#{critics}%\2 (\2#{critic_count}\2 critics) / \2#{audience}%\2 (\2#{audience_count}\2 viewers), released: \2#{released}\2, genres: #{genres}"
 
 
     when %r{^https?://(www\.)?youtube\.com/watch\?}
