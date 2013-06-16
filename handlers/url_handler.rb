@@ -289,7 +289,7 @@ class HTMLParser < Mechanize::Page
 
     when %r{^https?://(www\.)?rottentomatoes\.com/m/.+}
       title = at(".movie_title").clean_text
-      critics = at(".meter.certified").clean_text
+      critics = at("#all-critics-meter").clean_text
       popcorn = at(".meter.popcorn").clean_text
       genres = search("span[itemprop='genre']").map(&:clean_text).join(", ")
       released = at("span[itemprop='datePublished']")["content"]

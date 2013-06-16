@@ -62,4 +62,5 @@ end
 # test "http://en.wikipedia.org/wiki/Israel"
 # test "https://twitter.com/stevelosh/status/340183472373129216"
 # test "https://twitter.com/bcardarella/status/343762719880671232"
-test "http://www.rottentomatoes.com/m/this_is_the_end/"
+# test "http://www.rottentomatoes.com/m/this_is_the_end/"
+test "http://www.rottentomatoes.com/m/v_tumane_2012/"
