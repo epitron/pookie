@@ -294,7 +294,7 @@ class HTMLParser < Mechanize::Page
       genres = search("span[itemprop='genre']").map(&:clean_text).join(", ")
       released = at("span[itemprop='datePublished']")["content"]
 
-      "movie: \b#{title}\b (critics: \b#{critics}%\b, popcorn: \b#{popcorn}\b, released: \b#{released}\b, genres: #{genres})"
+      "movie: \2#{title}\2 (critics: \2#{critics}%\2, audience: \2#{popcorn}%\2, released: \2#{released}\2, genres: #{genres})"
 
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       #views = at("span.watch-view-count").clean_text
