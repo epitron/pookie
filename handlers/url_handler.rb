@@ -277,11 +277,11 @@ class HTMLParser < Mechanize::Page
       "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
 
 
-    when %r{^https?://(?:www\.)?github\.com/([^/]+?)/([^/]+?)$}
+    when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)$}
       watchers, forks = search("a.social-count").map(&:clean_text)
 
-      desc     = at("#repository_description")
-      desc.at("span").remove
+      desc     = at(".repository-description")
+      #desc.at("span").remove
       desc     = desc.clean_text
 
       "github: \2#{$1}/#{$2}\2 - #{desc} (watchers: \2#{watchers}\2, forks: \2#{forks}\2)"

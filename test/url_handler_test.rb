@@ -65,4 +65,5 @@ end
 # test "http://www.rottentomatoes.com/m/this_is_the_end/"
 # test "http://www.rottentomatoes.com/m/v_tumane_2012/"
 # test "http://www.rottentomatoes.com/m/20_feet_from_stardom/"
-test "http://www.rottentomatoes.com/m/star_trek_into_darkness/"
+# test "http://www.rottentomatoes.com/m/star_trek_into_darkness/"
+# test "https://github.com/blog/1547-release-your-software"
