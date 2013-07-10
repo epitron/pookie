@@ -287,6 +287,13 @@ class HTMLParser < Mechanize::Page
       "github: \2#{$1}/#{$2}\2 - #{desc} (watchers: \2#{watchers}\2, forks: \2#{forks}\2)"
 
 
+    when %r{^https?://(www\.)?soundcloud.com/}
+      page = mech.get "http://soundcloud.com/oembed?url=#{CGI.escape uri.to_s}&format=json"
+      json = page.body.from_json
+
+      "soundcloud: \2#{json["title"]}\2"
+
+
     when %r{^https?://(www\.)?rottentomatoes\.com/m/.+}
       title          = at(".movie_title").clean_text
       genres         = search("span[itemprop='genre']").map(&:clean_text).join(", ")

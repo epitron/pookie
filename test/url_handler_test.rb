@@ -67,3 +67,5 @@ end
 # test "http://www.rottentomatoes.com/m/20_feet_from_stardom/"
 # test "http://www.rottentomatoes.com/m/star_trek_into_darkness/"
 # test "https://github.com/blog/1547-release-your-software"
+# test "https://github.com/epitron/package_control_channel"
+test "https://soundcloud.com/strictly/sometime-in-the-future"
