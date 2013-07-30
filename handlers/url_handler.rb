@@ -390,7 +390,9 @@ class UrlHandler < Marvin::CommandHandler
     /^travis-ci/,
     /^buttslave/,
     /^pry/,
-    /^Xtopherus/
+    /^Xtopherus/,
+    /^feepbot/,
+    /^galileo/
   ]
 
   #--------------------------------------------------------------------------
