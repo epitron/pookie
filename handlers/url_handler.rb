@@ -181,12 +181,20 @@ class ImageParser < Mechanize::Download
     tmp << body
 
     # avatar_6786.png PNG 80x80 80x80+0+0 8-bit DirectClass 15.5KB 0.000u 0:00.000
-    filename, type, dimensions, *extra = `identify #{tmp}`.split
+    # 2BXGik3.gif[49] GIF 450x219 450x330+0+69 8-bit sRGB 128c 2.012MB 0.000u 0:00.009
+    lines  = `identify #{tmp}`.lines.to_a
+    filename, type, dimensions, *extra = lines.last.split
+    
+    frameinfo = ""
+    if lines.size > 1
+      frameinfo = ", #{lines.size} frames"
+    end
+
 
     if dimensions and type
-      "image: \2#{dimensions} #{type}\2 (#{tmp.size.commatize} bytes)"
+      "image: \2#{dimensions} #{type}\2 (#{tmp.size.commatize} bytes#{frameinfo})"
     else
-      "image: \2#{mimetype}\2 (#{size.commatize} bytes)"
+      "image: \2#{mimetype}\2 (#{size.commatize} bytes#{frameinfo})"
     end
   end
 

@@ -68,4 +68,6 @@ end
 # test "http://www.rottentomatoes.com/m/star_trek_into_darkness/"
 # test "https://github.com/blog/1547-release-your-software"
 # test "https://github.com/epitron/package_control_channel"
-test "https://soundcloud.com/strictly/sometime-in-the-future"
+# test "https://soundcloud.com/strictly/sometime-in-the-future"
+# test "http://i.imgur.com/2BXGik3.gif"
+# test "http://i.imgur.com/8A1dnQJ.jpg"
