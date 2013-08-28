@@ -308,14 +308,21 @@ class HTMLParser < Mechanize::Page
       released       = at("span[itemprop='datePublished']")["content"]
 
       critics        = at("#all-critics-meter").clean_text
-      critic_count   = at("span[itemprop='reviewCount']").clean_text.to_i.commatize
+      critic_count   = at("span[itemprop='reviewCount']").clean_text.to_i.commatize rescue nil
 
-      audience       = at(".meter.popcorn").clean_text
+      audience       = at(".meter.popcorn").clean_text rescue nil
       audience_count = at("a.fan_side p.critic_stats").clean_text.split.last
 
-      "movie: \2#{title}\2 - ratings: \2#{critics}%\2 (\2#{critic_count}\2 critics) / \2#{audience}%\2 (\2#{audience_count}\2 viewers), released: \2#{released}\2, genres: #{genres}"
+      result = "movie: \2#{title}\2"
 
+      if critic_count and audience
+        result += " - ratings: \2#{critics}%\2 (\2#{critic_count}\2 critics) / \2#{audience}%\2 (\2#{audience_count}\2 viewers),"
+      end
 
+      result += " released: \2#{released}\2, genres: #{genres}"
+
+      result
+      
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       #views = at("span.watch-view-count").clean_text
       #date  = at("#eow-date").clean_text
