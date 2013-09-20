@@ -410,7 +410,8 @@ class UrlHandler < Marvin::CommandHandler
     /^pry/,
     /^Xtopherus/,
     /^feepbot/,
-    /^galileo/
+    /^galileo/,
+    /^eval-in/
   ]
 
   #--------------------------------------------------------------------------
