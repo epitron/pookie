@@ -224,6 +224,7 @@ class HTMLParser < Mechanize::Page
     case uri.to_s
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
       max_size   = 320
+      min_size   = 60
       title      = at("#firstHeading").clean_text
       sentences  = []
       content = search("#bodyContent #mw-content-text")
@@ -240,21 +241,22 @@ class HTMLParser < Mechanize::Page
       # convert to text
       paragraphs = paragraphs.map(&:clean_text).reject(&:blank?)
 
+      # split into an array of sentences
       for paragraph in paragraphs
         break if sentences.size > 20
         sentences += paragraph.split(/(?<=\.)(?:\[\d+\])* (?=[A-Z0-9])/)
       end
 
-      # pp sentences 
-
       summary = sentences.first
 
+      # append sentences to the summary (up to a maximum, unless it's too short)
       sentences[1..-1].each do |sentence|
         test = "#{summary} #{sentence}"
-        break if test.size > max_size and summary.size > 60
+        break if test.size > max_size and summary.size > min_size
         summary = test
       end
 
+      # crop it if it's longer than the maximum size
       if summary.size > max_size
         summary = summary[0..max_size-3] + "..."
       end
