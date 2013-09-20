@@ -226,7 +226,10 @@ class HTMLParser < Mechanize::Page
       max_size   = 320
       title      = at("#firstHeading").clean_text
       sentences  = []
-      paragraphs = search("#bodyContent #mw-content-text p")
+      content = search("#bodyContent #mw-content-text")
+      content.search("table").remove
+
+      paragraphs = content.search("p")
 
       # remove extra crap
       paragraphs.search("p span[id='coordinates']").remove
@@ -238,7 +241,7 @@ class HTMLParser < Mechanize::Page
       paragraphs = paragraphs.map(&:clean_text).reject(&:blank?)
 
       for paragraph in paragraphs
-        break if sentences.size > 10
+        break if sentences.size > 20
         sentences += paragraph.split(/(?<=\.)(?:\[\d+\])* (?=[A-Z0-9])/)
       end
 
@@ -248,7 +251,7 @@ class HTMLParser < Mechanize::Page
 
       sentences[1..-1].each do |sentence|
         test = "#{summary} #{sentence}"
-        break if test.size > max_size
+        break if test.size > max_size and summary.size > 60
         summary = test
       end
 

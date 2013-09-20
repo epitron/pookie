@@ -71,4 +71,5 @@ end
 # test "https://soundcloud.com/strictly/sometime-in-the-future"
 # test "http://i.imgur.com/2BXGik3.gif"
 # test "http://i.imgur.com/8A1dnQJ.jpg"
-test "http://www.rottentomatoes.com/m/the_book_thief/"
+# test "http://www.rottentomatoes.com/m/the_book_thief/"
+test "https://en.wikipedia.org/wiki/Stambovsky_v._Ackley"
