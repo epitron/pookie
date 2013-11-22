@@ -9,8 +9,8 @@ class Marvin
 	    @logger ||= Logger.new STDOUT
 	  end
 
-	  def say(*args)
-	    #puts "<pookie> #{args.inspect}"
+	  def say(msg, target)
+	    puts "<pookie@#{target}> #{msg}"
 	  end
 
   end
@@ -72,4 +72,6 @@ end
 # test "http://i.imgur.com/2BXGik3.gif"
 # test "http://i.imgur.com/8A1dnQJ.jpg"
 # test "http://www.rottentomatoes.com/m/the_book_thief/"
-test "https://en.wikipedia.org/wiki/Stambovsky_v._Ackley"
+# test "https://en.wikipedia.org/wiki/Stambovsky_v._Ackley"
+# test "https://realworldocaml.org/"
+test "https://blockchain.info/tx/1c12443203a48f42cdf7b1acee5b4b1c1fedc144cb909a3bf5edbffafb0cd204"

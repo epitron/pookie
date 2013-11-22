@@ -349,6 +349,22 @@ class HTMLParser < Mechanize::Page
       "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
       #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"
 
+
+    when %r{^https?://(?:www\.)?blockchain\.info/tx/(.+)}
+      id = $1
+      page = mech.get("https://blockchain.info/rawtx/#{id}")
+      data = JSON.parse page.body
+      input_count = data["inputs"].size
+      out_count = data["out"].size
+      time = Time.at(data["time"])
+      datestr = time.strftime("%Y-%m-%d")
+      timestr = time.strftime("%H:%M")
+      ip = data["relayed_by"]
+      total_out = data["out"].inject(0) { |total,r| r["value"] + total }
+      total_out = total_out.to_f / (10**8)
+
+      "bitcoin transaction: \2#{total_out}\2 bitcoins (\2#{input_count}\2 inputs, \2#{out_count}\2 outputs, from \2#{ip}\2, at \2#{timestr}\2 on \2#{datestr}\2)"
+
     else
       if title = get_title
         "title: \2#{title}\2"
