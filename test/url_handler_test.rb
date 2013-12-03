@@ -1,6 +1,4 @@
-require 'epitools'
 require 'logger'
-require 'pry'
 
 class Marvin
   class CommandHandler
@@ -10,22 +8,23 @@ class Marvin
 	  end
 
 	  def say(msg, target)
-	    puts "<pookie@#{target}> #{msg}"
+	    puts "<pookie> #{msg}"
 	  end
 
   end
 end
 
-load "#{__DIR__}/../handlers/url_handler.rb"
+# load "#{__DIR__}/../handlers/url_handler.rb"
+require_relative "../handlers/url_handler"
 
 def message(line)
-  $u ||= UrlHandler.new
+  u = UrlHandler.new
   args = {
     :nick => "testuser",
-    :target => "dunno",
+    :target => nil,
     :message => line,
   }
-  $u.handle_incoming_message(args)
+  u.handle_incoming_message(args)
 end
 
 def test(str)

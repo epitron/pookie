@@ -1,3 +1,5 @@
+$: << "#{Marvin::Settings.root}/lib"
+
 # Is loaded on setup / when handlers need to be
 # registered. Use it to register handlers / do
 # any repeatable setup that will happen before
