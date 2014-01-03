@@ -73,4 +73,5 @@ end
 # test "http://www.rottentomatoes.com/m/the_book_thief/"
 # test "https://en.wikipedia.org/wiki/Stambovsky_v._Ackley"
 # test "https://realworldocaml.org/"
-test "https://blockchain.info/tx/1c12443203a48f42cdf7b1acee5b4b1c1fedc144cb909a3bf5edbffafb0cd204"
+# test "https://blockchain.info/tx/1c12443203a48f42cdf7b1acee5b4b1c1fedc144cb909a3bf5edbffafb0cd204"
+test "http://en.wikipedia.org/wiki/File:Orlovsky_and_Oculus_Rift.jpg"

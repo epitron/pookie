@@ -8,6 +8,9 @@ require 'mechanize'
 require 'cgi'
 require 'logger'
 require 'json'
+require 'timeout'
+
+require 'thread-pool'
 
 #############################################################################
 # Monkeypatches
@@ -37,7 +40,7 @@ class String
 
   def translate_html_entities
     # first pass -- let CGI have a crack at it...
-    raw_title = CGI::unescapeHTML(self)
+    raw_title = CGI.unescapeHTML(self)
 
     # second pass -- fix things that won't display as ASCII...
     raw_title.gsub(/(&([\w\d#]+?);)/) do
@@ -441,6 +444,8 @@ class UrlHandler < Marvin::CommandHandler
     /^eval-in/
   ]
 
+  POOL = Pool.new(3)
+
   #--------------------------------------------------------------------------
 
   ### Handle All Lines of Chat ############################
@@ -453,17 +458,25 @@ class UrlHandler < Marvin::CommandHandler
 
     url_list = args[:message].scan(URL_MATCHER_RE)
 
-    url_list.each do |url|
-      logger.info "Getting info for #{url}..."
+    POOL.schedule do
 
-      page = agent.get(url)
+      url_list.each do |url|
+        logger.info "Getting info for #{url}..."
 
-      if page.respond_to? :link_info and title = page.link_info
-        say title, args[:target]
-        logger.info title
-      else
-        logger.info "Link info not found!"
+        begin
+          page = timeout(15) { agent.get(url) }
+
+          if page.respond_to? :link_info and title = page.link_info
+            say title, args[:target]
+            logger.info title
+          else
+            logger.info "Link info not found!"
+          end
+        rescue Timeout::Error
+          say "title: Timeout"
+        end
       end
+
     end
 
   rescue Mechanize::ResponseCodeError, SocketError => e
