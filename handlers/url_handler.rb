@@ -222,6 +222,7 @@ class HTMLParser < Mechanize::Page
     p uri.to_s
 
     case uri.to_s
+
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/File:(.+)}
       info = at("#mw-content-text .fullMedia .fileInfo").clean_text
 
@@ -299,7 +300,7 @@ class HTMLParser < Mechanize::Page
       "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
 
 
-    when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)$}
+    when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)/?$}
       watchers, forks = search("a.social-count").map(&:clean_text)
 
       desc     = at(".repository-description")
