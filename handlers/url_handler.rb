@@ -375,6 +375,19 @@ class HTMLParser < Mechanize::Page
 
       "bitcoin transaction: \2#{total_out}\2 bitcoins (\2#{input_count}\2 inputs, \2#{out_count}\2 outputs, from \2#{ip}\2, at \2#{timestr}\2 on \2#{datestr}\2)"
 
+    when %r{^https?://(?:www\.)?kickstarter\.com/projects/.+}
+      # require 'pry'; binding.pry
+      title     = at("#title").clean_text
+      subtitle  = at("#subtitle").clean_text
+
+      stats     = at("#stats")
+      remaining = stats.at("#project_duration_data")["data-hours-remaining"]
+      backers   = stats.at("#backers_count")["data-backers-count"].to_i.commatize
+      goal      = stats.at("#pledged")["data-goal"].to_i.commatize
+      pledged   = stats.at("#pledged")["data-pledged"].to_i.commatize
+
+      "kickstarter: \2#{title}\2 #{subtitle} (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
+
     else
       if title = get_title
         "title: \2#{title}\2"

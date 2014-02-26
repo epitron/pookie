@@ -75,4 +75,5 @@ end
 # test "https://realworldocaml.org/"
 # test "https://blockchain.info/tx/1c12443203a48f42cdf7b1acee5b4b1c1fedc144cb909a3bf5edbffafb0cd204"
 # test "http://en.wikipedia.org/wiki/File:Orlovsky_and_Oculus_Rift.jpg"
-test "https://github.com/basecamp/bcx-api/"
+# test "https://github.com/basecamp/bcx-api/"
+test "https://www.kickstarter.com/projects/mossmann/hackrf-an-open-source-sdr-platform"
