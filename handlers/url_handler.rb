@@ -221,6 +221,7 @@ class HTMLParser < Mechanize::Page
   def link_info
     p uri.to_s
 
+    # require 'pry'; binding.pry
     case uri.to_s
 
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/File:(.+)}
@@ -376,7 +377,6 @@ class HTMLParser < Mechanize::Page
       "bitcoin transaction: \2#{total_out}\2 bitcoins (\2#{input_count}\2 inputs, \2#{out_count}\2 outputs, from \2#{ip}\2, at \2#{timestr}\2 on \2#{datestr}\2)"
 
     when %r{^https?://(?:www\.)?kickstarter\.com/projects/.+}
-      # require 'pry'; binding.pry
       title     = at("#title").clean_text
       subtitle  = at("#subtitle").clean_text
 
@@ -495,12 +495,14 @@ class UrlHandler < Marvin::CommandHandler
       a.pluggable_parser["image"] = ImageParser
       a.pluggable_parser.html     = HTMLParser
 
-      #a.user_agent_alias          = "Windows IE 7"
-      a.user_agent                = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
-
-      a.max_history               = 0
-      a.log                       = Logger.new $stdout # FIXME: Assign this to the Marvin logger
-      a.verify_mode               = OpenSSL::SSL::VERIFY_NONE
+      #a.user_agent_alias   = "Windows IE 7"
+      a.user_agent          = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
+      a.max_history         = 0
+      a.log                 = Logger.new $stdout # FIXME: Assign this to the Marvin logger
+      a.verify_mode         = OpenSSL::SSL::VERIFY_NONE
+      a.redirect_ok         = true
+      a.redirection_limit   = 5
+      a.follow_meta_refresh = :anywhere
     end
   end
 
