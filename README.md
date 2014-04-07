@@ -1,8 +1,7 @@
 # pookie
 
-An IRC bot that does two things:
+An IRC bot that does one thing:
 
-* Says hello!
 * Displays information about URLs that people paste on IRC.
 
 It can connect to many IRC channels on many servers within one process, can extract titles and ratings from YouTube videos, can display information about things without titles (like image resolution, zip file sizes, etc.), can show Tweets directly, and more!
@@ -19,7 +18,7 @@ To install/run pookie:
   
 ## Copyright
 
-Copyright (c) 2009-2012 epitron
+Copyright (c) 2009-2014 epitron
 
 ## License
 

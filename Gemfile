@@ -1,6 +1,6 @@
 source :rubygems
 
-gem 'marvin'
+gem 'cinch'
 gem 'epitools'
 gem 'mechanize'
 

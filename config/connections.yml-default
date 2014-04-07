@@ -1,5 +1,11 @@
+defaults:
+  nick: pookie
+  user: pookie
+  realname: "Pookie D. Bot"
+
 "irc.freenode.net":
-  port: 6667
+  port: 6697
+  ssl: true
   channels:
     - "#pookie-testing"
 

@@ -1,16 +1,9 @@
-# Use this class to debug stuff as you
-# go along - e.g. dump events etc.
-# options = {:ident=>"i=user", :host=>"unaffiliated/user", :nick=>"User", :message=>"this is a message", :target=>"#pookie-testing"}
-
-#require 'curb'
-#require 'epitools'
+require 'epitools'
+require 'cinch'
 require 'mechanize'
 require 'cgi'
 require 'logger'
 require 'json'
-require 'timeout'
-
-require 'thread-pool'
 
 #############################################################################
 # Monkeypatches
@@ -40,7 +33,7 @@ class String
 
   def translate_html_entities
     # first pass -- let CGI have a crack at it...
-    raw_title = CGI.unescapeHTML(self)
+    raw_title = CGI::unescapeHTML(self)
 
     # second pass -- fix things that won't display as ASCII...
     raw_title.gsub(/(&([\w\d#]+?);)/) do
@@ -148,8 +141,10 @@ module URI
   end
 end
 
+
 #############################################################################
 # Generic link info
+
 #class Mechanize::Download
 class Mechanize::File
   def size
@@ -165,8 +160,10 @@ class Mechanize::File
   end
 end
 
+
 #############################################################################
 # Image info
+
 class ImageParser < Mechanize::Download
 
   def peek(amount=4096)
@@ -203,8 +200,10 @@ class ImageParser < Mechanize::Download
 
 end
 
+
 #############################################################################
 # HTML link info
+
 class HTMLParser < Mechanize::Page
 
   TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
@@ -224,7 +223,9 @@ class HTMLParser < Mechanize::Page
   def link_info
     p uri.to_s
 
+    # require 'pry'; binding.pry
     case uri.to_s
+
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/File:(.+)}
       info = at("#mw-content-text .fullMedia .fileInfo").clean_text
 
@@ -302,7 +303,7 @@ class HTMLParser < Mechanize::Page
       "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
 
 
-    when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)$}
+    when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)/?$}
       watchers, forks = search("a.social-count").map(&:clean_text)
 
       desc     = at(".repository-description")
@@ -377,6 +378,18 @@ class HTMLParser < Mechanize::Page
 
       "bitcoin transaction: \2#{total_out}\2 bitcoins (\2#{input_count}\2 inputs, \2#{out_count}\2 outputs, from \2#{ip}\2, at \2#{timestr}\2 on \2#{datestr}\2)"
 
+    when %r{^https?://(?:www\.)?kickstarter\.com/projects/.+}
+      title     = at("#title").clean_text
+      subtitle  = at("#subtitle").clean_text
+
+      stats     = at("#stats")
+      remaining = stats.at("#project_duration_data")["data-hours-remaining"]
+      backers   = stats.at("#backers_count")["data-backers-count"].to_i.commatize
+      goal      = stats.at("#pledged")["data-goal"].to_i.commatize
+      pledged   = stats.at("#pledged")["data-pledged"].to_i.commatize
+
+      "kickstarter: \2#{title}\2 #{subtitle} (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
+
     else
       if title = get_title
         "title: \2#{title}\2"
@@ -399,110 +412,100 @@ class HTMLParser < Mechanize::Page
 
 end
 
+
 #############################################################################
 # The Plugin
 #############################################################################
 
-class UrlHandler < Marvin::CommandHandler
+module Cinch::Plugins
 
-  HTTP_STATUS_CODES = {
-    000 => "Incomplete/Undefined error",
-    201 => "Created",
-    202 => "Accepted",
-    203 => "Partial Information",
-    204 => "Page does not contain any information",
-    204 => "No response",
-    206 => "Only partial content delivered",
-    300 => "Page redirected",
-    301 => "Permanent URL relocation",
-    302 => "Temporary URL relocation",
-    303 => "Temporary relocation method and URL",
-    304 => "Document not modified",
-    400 => "Bad request (syntax)",
-    401 => "Unauthorized access (requires authentication)",
-    402 => "Access forbidden (payment required)",
-    403 => "Forbidden",
-    404 => "URL not found",
-    405 => "Method not Allowed (Most likely the result of a corrupt CGI script)",
-    408 => "Request time-out",
-    500 => "Internet server error",
-    501 => "Functionality not implemented",
-    502 => "Bad gateway",
-    503 => "Service unavailable",
-  }
-  
-  URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.*?)(?:\s|$)}i
+  class URLTitles
+    include Cinch::Plugin
 
-  IGNORE_NICKS = [
-    /^CIA-\d+$/,
-    /^travis-ci/,
-    /^buttslave/,
-    /^pry/,
-    /^Xtopherus/,
-    /^feepbot/,
-    /^galileo/,
-    /^eval-in/
-  ]
+    listen_to :message, :action
 
-  POOL = Pool.new(3)
+    IGNORE_NICKS = [
+      /^CIA-\d+$/,
+      /^travis-ci/,
+      /^buttslave/,
+      /^pry/,
+      /^Xtopherus/,
+      /^feepbot/,
+      /^galileo/,
+      /^eval-in/
+    ]
 
-  #--------------------------------------------------------------------------
+    URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.*?)(?:\s|$)}i
 
-  ### Handle All Lines of Chat ############################
+    ### Handle All Lines of Chat ############################
 
-  #on_event :incoming_message, :look_for_url
-  def handle_incoming_message(args)
-    return if IGNORE_NICKS.any?{|pattern| args[:nick] =~ pattern}
+    def listen(m)
+      return if IGNORE_NICKS.any?{|pattern| m.user.nick =~ pattern}
 
-    p args
-
-    url_list = args[:message].scan(URL_MATCHER_RE)
-
-    POOL.schedule do
+      url_list = m.message.scan(URL_MATCHER_RE)
 
       url_list.each do |url|
-        logger.info "Getting info for #{url}..."
+        debug "Getting info for #{url}..."
 
-        begin
-          page = timeout(15) { agent.get(url) }
+        page = agent.get(url)
 
-          if page.respond_to? :link_info and title = page.link_info
-            say title, args[:target]
-            logger.info title
-          else
-            logger.info "Link info not found!"
-          end
-        rescue Timeout::Error
-          say "title: Timeout"
+        if page.respond_to? :link_info and title = page.link_info
+          debug title
+          m.reply title
+        else
+          debug "Link info not found!"
         end
       end
 
+    rescue Mechanize::ResponseCodeError, SocketError => e
+      m.reply "Error: #{e.message}"
     end
 
-  rescue Mechanize::ResponseCodeError, SocketError => e
 
-    say "Error: #{e.message}"
+    ### Private methods... ###############################
 
-  end
+    HTTP_STATUS_CODES = {
+      000 => "Incomplete/Undefined error",
+      201 => "Created",
+      202 => "Accepted",
+      203 => "Partial Information",
+      204 => "Page does not contain any information",
+      204 => "No response",
+      206 => "Only partial content delivered",
+      300 => "Page redirected",
+      301 => "Permanent URL relocation",
+      302 => "Temporary URL relocation",
+      303 => "Temporary relocation method and URL",
+      304 => "Document not modified",
+      400 => "Bad request (syntax)",
+      401 => "Unauthorized access (requires authentication)",
+      402 => "Access forbidden (payment required)",
+      403 => "Forbidden",
+      404 => "URL not found",
+      405 => "Method not Allowed (Most likely the result of a corrupt CGI script)",
+      408 => "Request time-out",
+      500 => "Internet server error",
+      501 => "Functionality not implemented",
+      502 => "Bad gateway",
+      503 => "Service unavailable",
+    }
+    
+    def agent
+      @agent ||= Mechanize.new do |a|
+        a.pluggable_parser["image"] = ImageParser
+        a.pluggable_parser.html     = HTMLParser
 
-  ### Private methods... ###############################
-
-  #--------------------------------------------------------------------------
-
-  def agent
-    @agent ||= Mechanize.new do |a|
-      a.pluggable_parser["image"] = ImageParser
-      a.pluggable_parser.html     = HTMLParser
-
-      #a.user_agent_alias          = "Windows IE 7"
-      a.user_agent                = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
-
-      a.max_history               = 0
-      a.log                       = Logger.new $stdout # FIXME: Assign this to the Marvin logger
-      a.verify_mode               = OpenSSL::SSL::VERIFY_NONE
+        #a.user_agent_alias   = "Windows IE 7"
+        a.user_agent          = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
+        a.max_history         = 0
+        a.log                 = Logger.new $stdout # FIXME: Assign this to the Marvin logger
+        a.verify_mode         = OpenSSL::SSL::VERIFY_NONE
+        a.redirect_ok         = true
+        a.redirection_limit   = 5
+        a.follow_meta_refresh = :anywhere
+      end
     end
-  end
 
-  #--------------------------------------------------------------------------
+  end
 
 end
