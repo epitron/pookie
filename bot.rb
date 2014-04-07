@@ -13,7 +13,7 @@ pp config: config
 
 bots = config.map do |address, options|
   ssl = options.delete("ssl")
-  Cinch::Bot.new do
+  bot = Cinch::Bot.new do
 
     # see: http://rubydoc.info/gems/cinch/file/docs/bot_options.md
     configure do |c|
@@ -28,6 +28,14 @@ bots = config.map do |address, options|
     end
 
   end
+
+  Dir.mkdir "logs" unless File.directory? "logs"
+
+  bot.loggers << Cinch::Logger::FormattedLogger.new(File.open("logs/debug.log", "a"))
+  bot.loggers.level = :debug
+  bot.loggers.first.level  = :log
+
+  bot
 end
 
 threads = bots.map do |bot|
