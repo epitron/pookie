@@ -1,2 +1,2 @@
-log/*.log
+logs/
 config/connections.yml
