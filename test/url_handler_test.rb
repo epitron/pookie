@@ -1,34 +1,18 @@
 require 'logger'
+require 'ostruct'
+require 'epitools/colored'
 
-class Marvin
-  class CommandHandler
-
-	  def logger
-	    @logger ||= Logger.new STDOUT
-	  end
-
-	  def say(msg, target)
-	    puts "<pookie> #{msg}"
-	  end
-
-  end
-end
-
-# load "#{__DIR__}/../handlers/url_handler.rb"
-require_relative "../handlers/url_handler"
-
-def message(line)
-  u = UrlHandler.new
-  args = {
-    :nick => "testuser",
-    :target => nil,
-    :message => line,
-  }
-  u.handle_incoming_message(args)
-end
+require_relative "../plugins/url_titles"
 
 def test(str)
-  p message(str)
+  p str
+  g = TitleGrabber.new(debug: true)
+
+  urls = g.extract_urls(str)
+
+  p found_urls: urls
+
+  urls.each { |url| puts g.grab(url).inspect.bright_green }
 end
 
 # test "http://fffffffffffffzzzzzzzfffffffffffafafarrejrj23.net/badurl"
@@ -78,4 +62,6 @@ end
 # test "https://github.com/basecamp/bcx-api/"
 # test "https://www.kickstarter.com/projects/mossmann/hackrf-an-open-source-sdr-platform"
 # test "http://mag.newsweek.com/2014/03/14/bitcoin-satoshi-nakamoto.html?piano_t=1/"
-test "http://t.co/7Rk2k8iOIK"
+# test "http://t.co/7Rk2k8iOIK"
+# test "https://docs.google.com/presentation/d/1Sv8IHkBtBEXjSW7WktEYg4EbAUHtVyXIZBrAGD3WR5Y/"
+test "https://floobits.com/security,"

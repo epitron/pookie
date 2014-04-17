@@ -13,8 +13,8 @@ pp config: config
 
 bots = config.map do |address, options|
   ssl = options.delete("ssl")
-  bot = Cinch::Bot.new do
 
+  bot = Cinch::Bot.new do
     # see: http://rubydoc.info/gems/cinch/file/docs/bot_options.md
     configure do |c|
       c.server  = address
@@ -26,7 +26,6 @@ bots = config.map do |address, options|
 
       c.plugins.plugins = [Cinch::Plugins::URLTitles]
     end
-
   end
 
   Dir.mkdir "logs" unless File.directory? "logs"

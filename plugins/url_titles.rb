@@ -221,7 +221,7 @@ class HTMLParser < Mechanize::Page
   end
 
   def link_info
-    p uri.to_s
+    # p uri.to_s
 
     # require 'pry'; binding.pry
     case uri.to_s
@@ -413,6 +413,54 @@ class HTMLParser < Mechanize::Page
 end
 
 
+class TitleGrabber
+
+  URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.*?)(?:\s|$)}i
+
+  def initialize(debug: false)
+    @debug = debug
+  end
+
+  def extract_urls(message)
+    message.scan(URL_MATCHER_RE).map do |url|
+      url.gsub(/[,\)]$/, '')
+    end
+  end
+
+  def grab(url)
+    page = agent.get(url)
+
+    if page.respond_to? :link_info and title = page.link_info
+      title
+    else
+      nil
+    end
+  rescue Mechanize::ResponseCodeError, SocketError => e
+    nil
+  end
+
+  def agent
+    @agent ||= Mechanize.new do |a|
+      a.pluggable_parser["image"] = ImageParser
+      a.pluggable_parser.html     = HTMLParser
+
+      #a.user_agent_alias   = "Windows IE 7"
+      a.user_agent          = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
+      a.max_history         = 0
+      a.verify_mode         = OpenSSL::SSL::VERIFY_NONE
+      a.redirect_ok         = true
+      a.redirection_limit   = 5
+      a.follow_meta_refresh = :anywhere
+
+      if @debug
+        a.log = Logger.new $stdout # FIXME: Assign this to the Cinch logger
+      end
+    end
+  end
+
+end
+
+
 #############################################################################
 # The Plugin
 #############################################################################
@@ -435,21 +483,21 @@ module Cinch::Plugins
       /^eval-in/
     ]
 
-    URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.*?)(?:\s|$)}i
-
     ### Handle All Lines of Chat ############################
+
+    def titlegrabber
+      @titlegrabber ||= TitleGrabber.new
+    end
 
     def listen(m)
       return if IGNORE_NICKS.any?{|pattern| m.user.nick =~ pattern}
 
-      url_list = m.message.scan(URL_MATCHER_RE)
+      url_list = titlegrabber.extract_urls(m.message)
 
       url_list.each do |url|
         debug "Getting info for #{url}..."
 
-        page = agent.get(url)
-
-        if page.respond_to? :link_info and title = page.link_info
+        if title = titlegrabber.grab(url) 
           debug title
           m.reply title
         else
@@ -457,10 +505,7 @@ module Cinch::Plugins
         end
       end
 
-    rescue Mechanize::ResponseCodeError, SocketError => e
-      m.reply "Error: #{e.message}"
     end
-
 
     ### Private methods... ###############################
 
@@ -490,22 +535,6 @@ module Cinch::Plugins
       503 => "Service unavailable",
     }
     
-    def agent
-      @agent ||= Mechanize.new do |a|
-        a.pluggable_parser["image"] = ImageParser
-        a.pluggable_parser.html     = HTMLParser
-
-        #a.user_agent_alias   = "Windows IE 7"
-        a.user_agent          = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
-        a.max_history         = 0
-        a.log                 = Logger.new $stdout # FIXME: Assign this to the Marvin logger
-        a.verify_mode         = OpenSSL::SSL::VERIFY_NONE
-        a.redirect_ok         = true
-        a.redirection_limit   = 5
-        a.follow_meta_refresh = :anywhere
-      end
-    end
-
   end
 
 end
