@@ -493,6 +493,7 @@ module Cinch::Plugins
     def listen(m)
       return if IGNORE_NICKS.any?{|pattern| m.user.nick =~ pattern}
 
+      debug "message: #{m.message.inspect}"
       url_list = titlegrabber.extract_urls(m.message)
 
       url_list.each do |url|
