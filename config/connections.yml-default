@@ -3,18 +3,21 @@ defaults:
   user: pookie
   realname: "Pookie D. Bot"
 
-"irc.freenode.net":
+freenode:
+  server: irc.freenode.net"
   port: 6697
   ssl: true
   channels:
     - "#pookie-testing"
 
-"irc.arcti.ca":
+efnet:
+  server: "irc.arcti.ca"
   port: 6667
   channels:
     - "#pookie-testing"
 
-"irc.oftc.net":
+oftc:
+  server: "irc.oftc.net"
   port: 6697
   ssl: true
   channels:
