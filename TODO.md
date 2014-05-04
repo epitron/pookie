@@ -1,3 +1,9 @@
+* Make a class that Pry pries into
+  * root of "connections.yml" is the friendly name
+  * generate a method for each server friendly name
+  * "servers"/"bots" object (ostruct)
+  * "{dis,re,}connect(alias)" method
+
 * Logger plugin
 
 * Bot#inspect shows #<Bot server=host:port (ssl)>
