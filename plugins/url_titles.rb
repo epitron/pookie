@@ -470,6 +470,7 @@ module Cinch::Plugins
   class URLTitles
     include Cinch::Plugin
 
+    # All events: http://rubydoc.info/gems/cinch/file/docs/events.md
     listen_to :message, :action
 
     IGNORE_NICKS = [
@@ -490,7 +491,7 @@ module Cinch::Plugins
     end
 
     def listen(m)
-      return if IGNORE_NICKS.any?{|pattern| m.user.nick =~ pattern}
+      return if IGNORE_NICKS.any? { |pattern| m.user.nick =~ pattern }
 
       debug "message: #{m.message.inspect}"
       url_list = titlegrabber.extract_urls(m.message)
@@ -508,7 +509,7 @@ module Cinch::Plugins
 
     end
 
-    ### Private methods... ###############################
+    #########################################################
 
     HTTP_STATUS_CODES = {
       000 => "Incomplete/Undefined error",

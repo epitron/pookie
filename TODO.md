@@ -1,6 +1,8 @@
 * Logger plugin
 
-* Bot#inspect shows #<Bot server=host:port (ssl)>
+* bot.pry should have each server as a method (eg: freenode, efnet, etc.) so you can "freenode.join" or "cd efnet"
+
+* Bot#inspect should show: #<Bot server=host:port (ssl)>
 
 * Kill log spam:
   [2014/04/07 04:52:24.856] !! [New thread] 

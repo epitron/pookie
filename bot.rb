@@ -1,76 +1,108 @@
+########################################################################
+
 require 'cinch'
 require 'yaml'
 require 'thread'
 require 'pp'
-
+require 'ostruct'
+require 'pry'
 require_relative 'plugins/url_titles'
 
-config   = YAML.load(open("config/connections.yml"))
-defaults = config.delete("defaults")
+########################################################################
 
-pp defaults: defaults
-pp config: config
+class Cinch::Bot
+  def inspect
+    "#<Bot #{@name.inspect} on #{config.server}#{" (SSL)" if config.ssl.use}>"
+  end
+end
 
-bots = config.map do |address, options|
-  ssl = options.delete("ssl")
+class Cinch::Channel
+  def inspect
+    "#{@name} (#{bot.config.server})"
+  end
+end
 
-  bot = Cinch::Bot.new do
-    # see: http://rubydoc.info/gems/cinch/file/docs/bot_options.md
-    configure do |c|
-      c.server  = address
-      c.ssl.use = true if ssl
+########################################################################
 
-      defaults.merge(options).each do |key, val|
-        c.send("#{key}=", val)
+class Pookie
+
+  attr_accessor :config, :bots, :threads
+
+  def self.new_from_config_file(filename)
+    config = YAML.load open(filename)
+    new(config)
+  end
+
+  def initialize(config)
+    @config     = config.dup
+    connections = config
+    defaults    = connections.delete("defaults") || {}
+    
+    @bots = {}
+    connections.each do |connection_name, options|
+      options = defaults.merge(options)
+      ssl     = options.delete("ssl")
+
+      bot = Cinch::Bot.new do
+        # see: http://rubydoc.info/gems/cinch/file/docs/bot_options.md
+        configure do |c|
+          c.ssl.use = true if ssl
+
+          options.each do |key, val|
+            c.send("#{key}=", val)
+          end
+
+          c.plugins.plugins = [Cinch::Plugins::URLTitles]
+        end
       end
 
-      c.plugins.plugins = [Cinch::Plugins::URLTitles]
+      Dir.mkdir "logs" unless File.directory? "logs"
+
+      bot.loggers << Cinch::Logger::FormattedLogger.new(File.open("logs/debug.log", "a"))
+      bot.loggers.level = :debug
+      bot.loggers.first.level  = :log
+
+      @bots[connection_name] = bot
+
+      define_singleton_method(connection_name) { bot }
+    end
+
+  end
+
+  def channels
+    bots.map { |name, bot| bot.channels }.flatten
+  end
+
+  def connect!
+    puts "Connecting all bots..."
+
+    @threads = bots.map do |name, bot|
+      Thread.new { bot.start }
     end
   end
 
-  Dir.mkdir "logs" unless File.directory? "logs"
-
-  bot.loggers << Cinch::Logger::FormattedLogger.new(File.open("logs/debug.log", "a"))
-  bot.loggers.level = :debug
-  bot.loggers.first.level  = :log
-
-  bot
-end
-
-threads = bots.map do |bot|
-  Thread.new { bot.start }
-end
-
-commands = {
-  "ls" => proc do
-    bots.each_with_index do |bot,n|
-      puts "#{n}: #{bot.config.server}:#{bot.config.port} (ssl: #{bot.config.ssl.use})"
-      puts "   #{bot.channels.map(&:name).join(", ")}"
+  def cli!
+    Pry.config.should_load_rc = false
+    Pry.config.should_load_local_rc = false
+    
+    begin
+      require 'awesome_print'
+      AwesomePrint.pry!
+    rescue
     end
-  end,
 
-  "join"  => proc { |n, c| bots[n.to_i].join(c) },
-  "part"  => proc { |n, c| bots[n.to_i].part(c) },
-  "quit"  => proc { |n| bots[n.to_i].quit },
-  "start" => proc { |n| threads << Thread.new { bots[n.to_i].start } },
-}
+    self.pry
+  end
 
-## CLI
-# require 'readline'
+end
 
-# loop do
-#   line = Readline.readline("> ")
+########################################################################
 
-#   command, args = line.split
+if __FILE__ == $0
 
-#   if block = commands[command]
-#     block.call(*args)
-#   end
-# end
+  pookie = Pookie.new_from_config_file "config/connections.yml"
 
-## Easy CLI
-require 'pry'
-Pry.config.should_load_rc = false
-Pry.config.should_load_local_rc = false
-binding.pry
+  pookie.connect!
+  pookie.cli!
 
+end
