@@ -1,3 +1,9 @@
+* Make a class that Pry pries into
+  * root of "connections.yml" is the friendly name
+  * generate a method for each server friendly name
+  * "servers"/"bots" object (ostruct)
+  * "{dis,re,}connect(alias)" method
+
 * Logger plugin
 
 * bot.pry should have each server as a method (eg: freenode, efnet, etc.) so you can "freenode.join" or "cd efnet"

@@ -481,7 +481,8 @@ module Cinch::Plugins
       /^Xtopherus/,
       /^feepbot/,
       /^galileo/,
-      /^eval-in/
+      /^eval-in/,
+      /^kanzure/
     ]
 
     ### Handle All Lines of Chat ############################
