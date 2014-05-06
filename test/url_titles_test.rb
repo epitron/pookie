@@ -65,4 +65,5 @@ end
 # test "http://t.co/7Rk2k8iOIK"
 # test "https://docs.google.com/presentation/d/1Sv8IHkBtBEXjSW7WktEYg4EbAUHtVyXIZBrAGD3WR5Y/"
 # test "https://floobits.com/security,"
-test "http://http-keys.gnupg.net/"
+# test "http://http-keys.gnupg.net/"
+test "https://twitter.com/Helena_LB/status/458571238101635072"
