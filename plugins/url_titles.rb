@@ -300,12 +300,14 @@ class HTMLParser < Mechanize::Page
       username  = $2
       fullname  = page.at(".user-actions")["data-name"]
 
-      tweets    = page.at("ul.stats li a[data-element-term='tweet_stats'] strong").clean_text
-      followers = page.at("ul.stats li a[data-element-term='follower_stats'] strong").clean_text
-      following = page.at("ul.stats li a[data-element-term='following_stats'] strong").clean_text
+      # tweets    = page.at("ul.stats li a[data-element-term='tweet_stats'] strong").clean_text
+      # followers = page.at("ul.stats li a[data-element-term='follower_stats'] strong").clean_text
+      # following = page.at("ul.stats li a[data-element-term='following_stats'] strong").clean_text
+      tweets    = page.at(".ProfileNav-item--tweets.is-active .ProfileNav-value").clean_text
+      followers = page.at(".ProfileNav-item--followers .ProfileNav-value").clean_text
+      following = page.at(".ProfileNav-item--following .ProfileNav-value").clean_text
 
       "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, following: \2#{following}\2, followers: \2#{followers}\2"
-
 
     when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)/?$}
       watchers, forks = search("a.social-count").map(&:clean_text)
