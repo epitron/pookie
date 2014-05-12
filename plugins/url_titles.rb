@@ -396,6 +396,9 @@ class HTMLParser < Mechanize::Page
 
       "kickstarter: \2#{title}\2 #{subtitle} (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
 
+    when %r{^https?://onetimesecret\.com/secret/}
+      "title: \2Ssshhh.. it's a secret!\2"
+
     else
       if title = get_title
         "title: \2#{title}\2"
