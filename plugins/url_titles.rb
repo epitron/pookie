@@ -31,12 +31,16 @@ class String
     '#8217' => "'",
   }
 
+  TRANSLATE_TABLE = {
+    "—" => "--",
+  }
+
   def translate_html_entities
     # first pass -- let CGI have a crack at it...
     raw_title = CGI::unescapeHTML(self)
 
     # second pass -- fix things that won't display as ASCII...
-    raw_title.gsub(/(&([\w\d#]+?);)/) do
+    raw_title.gsub!(/(&([\w\d#]+?);)/) do
       symbol = $2
 
       # remove the 0-paddng from unicode integers
@@ -47,6 +51,12 @@ class String
       # output the symbol's irc-translated character, or a * if it's unknown
       UNESCAPE_TABLE[symbol] || '*'
     end
+
+    TRANSLATE_TABLE.each do |char, replacement|
+      raw_title.gsub!(char, replacement)
+    end
+
+    raw_title
   end
 
   def to_params
@@ -395,6 +405,9 @@ class HTMLParser < Mechanize::Page
       pledged   = stats.at("#pledged")["data-pledged"].to_i.commatize
 
       "kickstarter: \2#{title}\2 #{subtitle} (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
+
+    when %r{^https?://onetimesecret\.com/secret/}
+      "title: \2Ssshhh.. it's a secret!\2"
 
     else
       if title = get_title
