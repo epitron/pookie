@@ -68,4 +68,5 @@ end
 # test "http://http-keys.gnupg.net/"
 # test "https://twitter.com/Helena_LB/status/458571238101635072"
 # test "https://twitter.com/HackerNewsOnion"
-test "https://mobile.twitter.com/HackerNewsOnion"
+# test "https://mobile.twitter.com/HackerNewsOnion"
+test "https://medium.com/matter/f4a5d98a4f51/"
