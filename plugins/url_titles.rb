@@ -477,7 +477,7 @@ module Cinch::Plugins
     include Cinch::Plugin
 
     # All events: http://rubydoc.info/gems/cinch/file/docs/events.md
-    listen_to :message, :action
+    listen_to :message
 
     IGNORE_NICKS = [
       /^CIA-\d+$/,
