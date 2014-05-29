@@ -73,4 +73,5 @@ end
 # test "http://www.bloomberg.com/news/2014-05-21/brain-training-seen-as-dud-for-attention-deficit-children.html"
 # test "https://twitter.com/LocoElPillo"
 # test "http://www.theregister.co.uk/2014/05/28/truecrypt_hack/"
-test "http://arstechnica.com/security/2014/05/truecrypt-is-not-secure-official-sourceforge-page-abruptly-warns/"
+# test "http://arstechnica.com/security/2014/05/truecrypt-is-not-secure-official-sourceforge-page-abruptly-warns/"
+test "https://twitter.com/ProgrammingCom/status/471080343877853185"

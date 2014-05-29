@@ -309,8 +309,9 @@ class HTMLParser < Mechanize::Page
       # tweet   = page.at(".tweet-text").clean_text
       # inner_text.strip.gsub(/\s*\n+\s*/, " ").translate_html_entities if inner_text
 
+      
       tweet_node = page.at(".permalink-tweet .tweet-text")
-      tweet_node.search("a").each { |a| a.replace a["href"] } # replace anchor tags with just their hrefs
+      tweet_node.search("a.twitter-timeline-link").each { |a| a.replace a["href"] } # replace anchor tags with just their hrefs
 
       tweet   = tweet_node.inner_text.strip.gsub(/\n+/, " / ").translate_html_entities
       tweeter = page.at(".permalink-tweet .username").text
