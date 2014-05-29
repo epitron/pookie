@@ -1,3 +1,13 @@
+#############################################################################
+#
+# TODOs:
+#
+# * Wikipedia: excerpt sub-sections of an article
+# * META refresh: if the target page is the current page, or the delay is
+#                 very high, then ignore the refresh.
+#
+#############################################################################
+
 require 'epitools'
 require 'cinch'
 require 'mechanize'
@@ -33,6 +43,10 @@ class String
 
   TRANSLATE_TABLE = {
     "—" => "--",
+    "–" => "--",
+    "•" => "|",
+    "“" => "\"",
+    "”" => "\"",
   }
 
   def translate_html_entities
