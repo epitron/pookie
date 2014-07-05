@@ -412,8 +412,8 @@ class HTMLParser < Mechanize::Page
       "bitcoin transaction: \2#{total_out}\2 bitcoins (\2#{input_count}\2 inputs, \2#{out_count}\2 outputs, from \2#{ip}\2, at \2#{timestr}\2 on \2#{datestr}\2)"
 
     when %r{^https?://(?:www\.)?kickstarter\.com/projects/.+}
-      title     = at("#title").clean_text
-      subtitle  = at("#subtitle").clean_text
+      title     = at("#project-header .title h2").clean_text
+      subtitle  = at("#project-header .creator").clean_text
 
       stats     = at("#stats")
       remaining = stats.at("#project_duration_data")["data-hours-remaining"]
