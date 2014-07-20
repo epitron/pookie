@@ -76,5 +76,4 @@ end
 # test "http://arstechnica.com/security/2014/05/truecrypt-is-not-secure-official-sourceforge-page-abruptly-warns/"
 # test "https://twitter.com/ProgrammingCom/status/471080343877853185"
 # test "https://www.instapaper.com/text?u=http%3A%2F%2Fwww.businessweek.com%2Farticles%2F2014-06-11%2Fwith-the-machine-hp-may-have-invented-a-new-kind-of-computer"
-# test "https://www.kickstarter.com/projects/324283889/potato-salad/"
-test "http://twitter.com/RikerGoogling"
+test "https://twitter.com/_dskuza/status/489869132406337536"
