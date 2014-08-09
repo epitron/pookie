@@ -362,6 +362,14 @@ class HTMLParser < Mechanize::Page
 
       "soundcloud: \2#{json["title"]}\2"
 
+    when %r{^https?://(www\.)?urbandictionary\.com/define.php\?term=.+}
+      elem = search("#content .box .inner").first
+
+      word    = elem.at(".word").clean_text
+      meaning = elem.at(".meaning").clean_text
+      example = elem.at(".example").clean_text
+
+      "urbandictionary: \2#{word}\2: #{meaning} (eg: #{example})"[0..320]
 
     when %r{^https?://(www\.)?rottentomatoes\.com/m/.+}
       title          = at(".movie_title").clean_text
