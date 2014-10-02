@@ -250,7 +250,59 @@ class HTMLParser < Mechanize::Page
     # p uri.to_s
 
     # require 'pry'; binding.pry
+
     case uri.to_s
+
+    when %r{^https?://(?:www\.|i\.)?imgur\.com/(?:gallery/|album/)?(\w+)(?:\.\w{3})?}
+      # http://api.imgur.com/2/image/zTo8nk6.json
+      # http://api.imgur.com/2/album/TuS3O.json
+      # http://imgur.com/gallery/NyiVojz/comment/best/hit.json
+      id       = $1
+      response = mech.get("http://imgur.com/gallery/#{id}/comment/best/hit.json")
+      data     = response.body.from_json["data"]["image"]
+
+      # "hash"=>"lKk0Z4q",
+      # "account_id"=>"3606994",
+      # "account_url"=>"shenanigansen",
+      # "title"=>"I hope I haven't miscategorized.",
+      # "score"=>5519,
+      # "starting_score"=>1,
+      # "virality"=>2633.2473910225,
+      # "size"=>530967,
+      # "views"=>793978,
+      # "is_hot"=>true,
+      # "is_album"=>false,
+      # "album_cover"=>nil,
+      # "album_cover_width"=>0,
+      # "album_cover_height"=>0,
+      # "mimetype"=>"image/png",
+      # "ext"=>".png",
+      # "width"=>800,
+      # "height"=>2977,
+      # "animated"=>false,
+      # "ups"=>5311,
+      # "downs"=>189,
+      # "points"=>5122,
+      # "reddit"=>"/r/comics/comments/2hzkhu/i_hope_i_havent_miscategorized/",
+      # "bandwidth"=>"392.62 GB",
+      # "timestamp"=>"2014-10-01 13:13:24",
+      # "hot_datetime"=>"2014-10-01 15:25:32",
+      # "create_datetime"=>"2014-10-01 13:13:24",
+      # "section"=>"comics",
+
+      if data
+        title  = data["title"]
+        size   = "#{data["width"]}x#{data["height"]}"
+        views  = data["views"]
+        date   = data["timestamp"].split.first
+        ups    = data["ups"].to_i
+        downs  = data["downs"].to_i
+        rating = ((ups.to_f/(ups + downs)) * 100).round(0)
+
+        "imgur: \2#{title}\2 (views: \2#{views.to_i.commatize}\2, posted: \2#{date}\2, size: \2#{size}\2, rating: \2#{rating}%\2)"
+      else
+        nil
+      end
 
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/File:(.+)}
       info = at("#mw-content-text .fullMedia .fileInfo").clean_text

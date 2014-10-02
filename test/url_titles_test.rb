@@ -12,7 +12,22 @@ def test(message)
 
   p urls: urls
 
-  urls.each { |url| puts g.grab(url).inspect.bright_green }
+  urls.each do |url|
+    result = g.grab(url)
+
+    bold = false
+    bolded = result.gsub("\2") do |m| 
+      if bold
+        bold = false
+        "</11>"
+      else
+        bold = true
+        "<11>"
+      end
+    end
+
+    puts "<9>#{bolded}</9>".colorize
+  end
 end
 
 # test "http://fffffffffffffzzzzzzzfffffffffffafafarrejrj23.net/badurl"
@@ -77,4 +92,6 @@ end
 # test "https://twitter.com/ProgrammingCom/status/471080343877853185"
 # test "https://www.instapaper.com/text?u=http%3A%2F%2Fwww.businessweek.com%2Farticles%2F2014-06-11%2Fwith-the-machine-hp-may-have-invented-a-new-kind-of-computer"
 # test "https://twitter.com/_dskuza/status/489869132406337536"
-test "http://www.urbandictionary.com/define.php?term=gwai%20lo"
+# test "http://www.urbandictionary.com/define.php?term=gwai%20lo"
+# test "http://imgur.com/zTo8nk6"
+test "http://imgur.com/onnyQvZ"
