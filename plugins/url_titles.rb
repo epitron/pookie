@@ -209,7 +209,7 @@ class ImageParser < Mechanize::Download
     # avatar_6786.png PNG 80x80 80x80+0+0 8-bit DirectClass 15.5KB 0.000u 0:00.000
     # 2BXGik3.gif[49] GIF 450x219 450x330+0+69 8-bit sRGB 128c 2.012MB 0.000u 0:00.009
     lines  = `identify #{tmp}`.lines.to_a
-    filename, type, dimensions, *extra = lines.last.split
+    filename, type, dimensions, *extra = lines.first.split
     
     frameinfo = ""
     if lines.size > 1
@@ -254,6 +254,8 @@ class HTMLParser < Mechanize::Page
     case uri.to_s
 
     when %r{^https?://(?:www\.|i\.)?imgur\.com/(?:gallery/|album/)?(\w+)(?:\.\w{3})?}
+      # title == "imgur: the simple image sharer"
+
       # http://api.imgur.com/2/image/zTo8nk6.json
       # http://api.imgur.com/2/album/TuS3O.json
       # http://imgur.com/gallery/NyiVojz/comment/best/hit.json

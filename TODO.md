@@ -1,3 +1,6 @@
+* Size limit for downloads
+  * Switch to https://github.com/tarcieri/http gem
+
 * Make a class that Pry pries into
   * root of "connections.yml" is the friendly name
   * generate a method for each server friendly name
