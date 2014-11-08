@@ -559,6 +559,8 @@ class TitleGrabber
       a.redirect_ok         = true
       a.redirection_limit   = 5
       a.follow_meta_refresh = :anywhere
+      a.open_timeout        = 60
+      a.read_timeout        = 180
 
       if @debug
         a.log = Logger.new $stdout # FIXME: Assign this to the Cinch logger
