@@ -14,6 +14,10 @@ class Cinch::Bot
   def inspect
     "#<Bot #{@name.inspect} on #{config.server}#{" (SSL)" if config.ssl.use}>"
   end
+
+  def reconnect!
+    Thread.new { start }
+  end
 end
 
 class Cinch::Channel
@@ -73,11 +77,20 @@ class Pookie
     bots.map { |name, bot| bot.channels }.flatten
   end
 
-  def connect!
+  def connect_all!
     puts "Connecting all bots..."
 
     @threads = bots.map do |name, bot|
       Thread.new { bot.start }
+    end
+  end
+
+  def reconnect(bot)
+    case bot
+    when Cinch::Bot
+      bot.reconnect!
+    when String
+      bots[bot].reconnect!
     end
   end
 
@@ -102,7 +115,7 @@ if __FILE__ == $0
 
   pookie = Pookie.new_from_config_file "config/connections.yml"
 
-  pookie.connect!
+  pookie.connect_all!
   pookie.cli!
 
 end
