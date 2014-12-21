@@ -299,7 +299,7 @@ class HTMLParser < Mechanize::Page
         date   = data["timestamp"].split.first
         ups    = data["ups"].to_i
         downs  = data["downs"].to_i
-        rating = ((ups.to_f/(ups + downs)) * 100).round(0)
+        rating = ((ups.to_f/(ups + downs)) * 100).round(0) rescue 0
 
         "imgur: \2#{title}\2 (views: \2#{views.to_i.commatize}\2, posted: \2#{date}\2, size: \2#{size}\2, rating: \2#{rating}%\2)"
       else
@@ -506,6 +506,8 @@ class HTMLParser < Mechanize::Page
         nil
       end
     end
+
+
   end
 
   #--------------------------------------------------------------------------

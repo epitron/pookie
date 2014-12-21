@@ -94,4 +94,5 @@ end
 # test "https://twitter.com/_dskuza/status/489869132406337536"
 # test "http://www.urbandictionary.com/define.php?term=gwai%20lo"
 # test "http://imgur.com/onnyQvZ"
-test "http://imgur.com/zTo8nk6"
+# test "http://imgur.com/zTo8nk6"
+test "http://www.rottentomatoes.com/m/the_zero_theorem/"
