@@ -62,9 +62,10 @@ class Pookie
 
       Dir.mkdir "logs" unless File.directory? "logs"
 
-      bot.loggers << Cinch::Logger::FormattedLogger.new(File.open("logs/debug.log", "a"))
-      bot.loggers.level = :debug
-      bot.loggers.first.level  = :log
+      bot.loggers << Cinch::Logger::FormattedLogger.new(File.open("logs/error.log", "a"))
+      bot.loggers.level = :error
+      # bot.loggers.level = :debug
+      # bot.loggers.first.level  = :log
 
       @bots[connection_name] = bot
 
