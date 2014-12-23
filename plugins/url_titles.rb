@@ -417,7 +417,7 @@ class HTMLParser < Mechanize::Page
       "soundcloud: \2#{json["title"]}\2"
 
     when %r{^https?://(www\.)?urbandictionary\.com/define.php\?term=.+}
-      elem = search("#content .box .inner").first
+      elem = search("#content").first
 
       word    = elem.at(".word").clean_text
       meaning = elem.at(".meaning").clean_text

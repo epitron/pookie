@@ -95,4 +95,5 @@ end
 # test "http://www.urbandictionary.com/define.php?term=gwai%20lo"
 # test "http://imgur.com/onnyQvZ"
 # test "http://imgur.com/zTo8nk6"
-test "http://www.rottentomatoes.com/m/the_zero_theorem/"
+# test "http://www.rottentomatoes.com/m/the_zero_theorem/"
+test "http://www.urbandictionary.com/define.php?term=clown%20computing"
