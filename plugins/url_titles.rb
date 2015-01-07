@@ -124,7 +124,7 @@ class NilClass
   end
 end
 
-class YouTubeVideo < Struct.new(
+YouTubeVideo = Struct.new(
                 :title,
                 :thumbnails,
                 :link,
@@ -140,6 +140,7 @@ class YouTubeVideo < Struct.new(
                 :views
               )
 
+class YouTubeVideo
   def initialize(rec)
 
     media = rec["media$group"]
