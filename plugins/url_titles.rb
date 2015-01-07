@@ -411,10 +411,29 @@ class HTMLParser < Mechanize::Page
 
 
     when %r{^https?://(www\.)?soundcloud.com/}
-      page = mech.get "http://soundcloud.com/oembed?url=#{CGI.escape uri.to_s}&format=json"
-      json = page.body.from_json
+      # page = mech.get "http://soundcloud.com/oembed?url=#{CGI.escape uri.to_s}&format=json"
+      # json = page.body.from_json
 
-      "soundcloud: \2#{json["title"]}\2"
+      # <meta itemprop="interactionCount" content="UserLikes:5124" />
+      # <meta itemprop="interactionCount" content="UserDownloads:0" />
+      # <meta itemprop="interactionCount" content="UserComments:275" />
+      props = search("meta[itemprop='interactionCount']").map { |e| e["content"].split(":") }
+      props = Hash[props]
+
+      likes = props["UserLikes"]
+
+      # <meta property="og:title" content="Floating Points &amp; Four Tet - Final Plastic People 2 1 2015" />
+      title = at("meta[property='og:title']")["content"]
+
+      # <meta itemprop="duration" content="PT05H54M48S" />, in this format: http://en.wikipedia.org/wiki/ISO_8601#Durations
+      length = at("meta[itemprop='duration']")["content"].scan(/\d+/).flatten.join(":")
+
+      # <meta itemprop="name" content="floating points" />
+      artist = at("meta[itemprop='name']")["content"]
+
+      # require 'pry'; binding.pry
+
+      "soundcloud: \2#{title}\2 (by \2#{artist}\2, length: \2#{length}\2, likes: \2#{likes}\2)"
 
     when %r{^https?://(www\.)?urbandictionary\.com/define.php\?term=.+}
       elem = search("#content").first
