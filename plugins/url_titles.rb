@@ -558,7 +558,7 @@ class TitleGrabber
   end
 
   def grab(url)
-    Timeout.timeout(30) { page = agent.get(url) }
+    page = Timeout.timeout(30) { agent.get(url) }
 
     if page.respond_to? :link_info and title = page.link_info
       title
