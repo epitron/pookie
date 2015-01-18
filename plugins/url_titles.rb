@@ -558,7 +558,7 @@ class TitleGrabber
   end
 
   def grab(url)
-    page = agent.get(url)
+    Timeout.timeout(30) { page = agent.get(url) }
 
     if page.respond_to? :link_info and title = page.link_info
       title
@@ -581,8 +581,8 @@ class TitleGrabber
       a.redirect_ok         = true
       a.redirection_limit   = 5
       a.follow_meta_refresh = :anywhere
-      a.open_timeout        = 60
-      a.read_timeout        = 180
+      # a.open_timeout        = 60
+      # a.read_timeout        = 180
 
       if @debug
         a.log = Logger.new $stdout # FIXME: Assign this to the Cinch logger
@@ -640,6 +640,8 @@ module Cinch::Plugins
         end
       end
 
+    rescue Timeout::Error
+      debug "Timeout!"
     end
 
     #########################################################
@@ -648,10 +650,10 @@ module Cinch::Plugins
       000 => "Incomplete/Undefined error",
       201 => "Created",
       202 => "Accepted",
-      203 => "Partial Information",
-      204 => "Page does not contain any information",
-      204 => "No response",
-      206 => "Only partial content delivered",
+      203 => "Non-Authoritative Information",
+      204 => "No Content",
+      205 => "Reset Content",
+      206 => "Partial Content",
       300 => "Page redirected",
       301 => "Permanent URL relocation",
       302 => "Temporary URL relocation",
