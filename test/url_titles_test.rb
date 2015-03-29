@@ -97,4 +97,5 @@ end
 # test "http://imgur.com/zTo8nk6"
 # test "http://www.rottentomatoes.com/m/the_zero_theorem/"
 # test "http://www.urbandictionary.com/define.php?term=clown%20computing"
-test "https://soundcloud.com/floatingpoints/floating-points-four-tet-final-plastic-people-2-1-2015"
+# test "https://soundcloud.com/floatingpoints/floating-points-four-tet-final-plastic-people-2-1-2015"
+test "https://github.com/camlistore/camlistore"
