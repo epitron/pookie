@@ -98,4 +98,6 @@ end
 # test "http://www.rottentomatoes.com/m/the_zero_theorem/"
 # test "http://www.urbandictionary.com/define.php?term=clown%20computing"
 # test "https://soundcloud.com/floatingpoints/floating-points-four-tet-final-plastic-people-2-1-2015"
-test "https://github.com/camlistore/camlistore"
+# test "https://github.com/camlistore/camlistore"
+# test "https://twitter.com/RonConway/status/582633100758265857"
+test "http://ix.io/i1v"

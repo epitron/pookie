@@ -183,7 +183,17 @@ class Mechanize::File
   end
 
   def link_info
-    "type: \2#{mimetype}\2#{size <= 0 ? "" : ", size: \2#{size.commatize} bytes\2"}"
+    case mimetype
+    when %r{^text/plain}
+      snippet = body[0..150]
+      snippet += "..." if body.size > 150
+
+      snippet.gsub!(/\n/, ' / ')
+
+      "text: #{snippet}#{" (size: \2#{size.commatize} bytes\2)" if body.size > 0}"
+    else
+      "type: \2#{mimetype}\2#{size <= 0 ? "" : ", size: \2#{size.commatize} bytes\2"}"
+    end
   end
 end
 
