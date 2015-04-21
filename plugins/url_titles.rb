@@ -188,9 +188,9 @@ class Mechanize::File
       snippet = body[0..150]
       snippet += "..." if body.size > 150
 
-      snippet.gsub!(/\n/, ' / ')
+      snippet = snippet.gsub(/[\n\r]+/, ' / ')
 
-      "text: #{snippet}#{" (size: \2#{size.commatize} bytes\2)" if body.size > 0}"
+      "text: #{snippet}#{" (size: \2#{size.commatize} bytes\2)" if size > 0}"
     else
       "type: \2#{mimetype}\2#{size <= 0 ? "" : ", size: \2#{size.commatize} bytes\2"}"
     end
