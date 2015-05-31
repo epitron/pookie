@@ -32,7 +32,7 @@ end
 
 # test "http://fffffffffffffzzzzzzzfffffffffffafafarrejrj23.net/badurl"
 # test "http://google.com/)"
-# test "http://www.youtube.com/watch?v=EDagAmVdbO8"
+test "http://www.youtube.com/watch?v=EDagAmVdbO8"
 # test "https://github.com/rapportive-oss/git-bits"
 # test "https://twitter.com/#!/cxdig/status/180789837501169665"
 # test "http://snltranscripts.jt.org/01/01jbestlist.phtml"
@@ -100,4 +100,4 @@ end
 # test "https://soundcloud.com/floatingpoints/floating-points-four-tet-final-plastic-people-2-1-2015"
 # test "https://github.com/camlistore/camlistore"
 # test "https://twitter.com/RonConway/status/582633100758265857"
-test "http://ix.io/i1v"
+#test "http://ix.io/i1v"

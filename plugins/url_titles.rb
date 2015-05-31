@@ -475,7 +475,7 @@ class HTMLParser < Mechanize::Page
       result += " released: \2#{released}\2, genres: #{genres}"
 
       result
-      
+=begin      
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       #views = at("span.watch-view-count").clean_text
       #date  = at("#eow-date").clean_text
@@ -496,7 +496,7 @@ class HTMLParser < Mechanize::Page
 
       "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
       #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"
-
+=end
 
     when %r{^https?://(?:www\.)?blockchain\.info/tx/(.+)}
       id = $1
@@ -527,6 +527,9 @@ class HTMLParser < Mechanize::Page
 
     when %r{^https?://onetimesecret\.com/secret/}
       "title: \2Ssshhh.. it's a secret!\2"
+
+    when %r{^https?://(www\.)?eval\.in}
+      nil
 
     else
       if title = get_title
