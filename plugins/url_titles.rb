@@ -499,6 +499,29 @@ class HTMLParser < Mechanize::Page
       result += " released: \2#{released}\2, genres: #{genres}"
 
       result
+
+    when %r{^https?://(www\.)?youtube\.com/watch\?}
+      # {"property"=>"og:title", "content"=>"Grass- Silent Partner"},
+      # {"name"=>"title", "content"=>"Grass- Silent Partner"},
+      title = at("meta[@property='og:title']")["content"]
+
+      # {"itemprop"=>"datePublished", "content"=>"2013-10-05"},
+      date = at("meta[@itemprop='datePublished']")["content"]
+
+      # {"itemprop"=>"duration", "content"=>"PT5M4S"},
+      duration = at("meta[@itemprop='duration']")["content"]
+      duration = duration.scan(/\d+/).map { |n| "%0.2d" % n.to_i }.join(":")
+
+      likes = at("#watch8-sentiment-actions .like-button-renderer-like-button-unclicked .yt-uix-button-content").clean_text.to_i
+      dislikes = at("#watch8-sentiment-actions .like-button-renderer-dislike-button-unclicked .yt-uix-button-content").clean_text.to_i
+
+      rating = "%0.1f" % (100.0 * likes.to_f / (likes + dislikes))
+
+      views = at(".watch-view-count").clean_text
+
+
+      "video: \2#{title}\2 (length: \2#{duration}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
+
 =begin      
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       #views = at("span.watch-view-count").clean_text

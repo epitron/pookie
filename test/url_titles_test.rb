@@ -102,4 +102,6 @@ end
 # test "https://twitter.com/RonConway/status/582633100758265857"
 # test "http://ix.io/i1v"
 # test "http://www.twitch.tv/317070"
-test "http://www.twitch.tv/heroeswartv"
+# test "http://www.twitch.tv/heroeswartv"
+# test "https://www.youtube.com/watch?v=5aLSGeVhMjA"
+test "https://www.youtube.com/watch?v=D091idBiieY"
