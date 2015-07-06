@@ -115,52 +115,52 @@ class Nokogiri::XML::Element
   end
 end
 
-class NilClass
-  #
-  # A simple way to make it so missing fields nils don't cause the app the explode.
-  #
-  def [](*args)
-    nil
-  end
-end
+# class NilClass
+#   #
+#   # A simple way to make it so missing fields nils don't cause the app the explode.
+#   #
+#   def [](*args)
+#     nil
+#   end
+# end
 
-YouTubeVideo = Struct.new(
-                :title,
-                :thumbnails,
-                :link,
-                :description,
-                :length,
-                :user,
-                :published,
-                :updated,
-                :rating,
-                :raters,
-                :keywords,
-                :favorites,
-                :views
-              )
+# YouTubeVideo = Struct.new(
+#                 :title,
+#                 :thumbnails,
+#                 :link,
+#                 :description,
+#                 :length,
+#                 :user,
+#                 :published,
+#                 :updated,
+#                 :rating,
+#                 :raters,
+#                 :keywords,
+#                 :favorites,
+#                 :views
+#               )
 
-class YouTubeVideo
-  def initialize(rec)
+# class YouTubeVideo
+#   def initialize(rec)
 
-    media = rec["media$group"]
+#     media = rec["media$group"]
 
-    self.title        = media["media$title"]["$t"]
-    self.thumbnails   = media["media$thumbnail"].map{|r| r["url"]}
-    self.link         = media["media$player"].first["url"].gsub('&feature=youtube_gdata_player','')
-    self.description  = media["media$description"]["$t"]
-    self.length       = media["yt$duration"]["seconds"].to_i
-    self.user         = rec["author"].first["name"]["$t"]
-    self.published    = DateTime.parse rec["published"]["$t"]
-    self.updated      = DateTime.parse rec["updated"]["$t"]
-    self.rating       = rec["gd$rating"]["average"]
-    self.raters       = rec["gd$rating"]["numRaters"]
-    self.keywords     = rec["media$group"]["media$keywords"]["$t"]
-    self.favorites    = rec["yt$statistics"]["favoriteCount"].to_i
-    self.views        = rec["yt$statistics"]["viewCount"].to_i
-  end
+#     self.title        = media["media$title"]["$t"]
+#     self.thumbnails   = media["media$thumbnail"].map{|r| r["url"]}
+#     self.link         = media["media$player"].first["url"].gsub('&feature=youtube_gdata_player','')
+#     self.description  = media["media$description"]["$t"]
+#     self.length       = media["yt$duration"]["seconds"].to_i
+#     self.user         = rec["author"].first["name"]["$t"]
+#     self.published    = DateTime.parse rec["published"]["$t"]
+#     self.updated      = DateTime.parse rec["updated"]["$t"]
+#     self.rating       = rec["gd$rating"]["average"]
+#     self.raters       = rec["gd$rating"]["numRaters"]
+#     self.keywords     = rec["media$group"]["media$keywords"]["$t"]
+#     self.favorites    = rec["yt$statistics"]["favoriteCount"].to_i
+#     self.views        = rec["yt$statistics"]["viewCount"].to_i
+#   end
 
-end
+# end
 
 module URI
   def params
@@ -454,6 +454,30 @@ class HTMLParser < Mechanize::Page
       example = elem.at(".example").clean_text
 
       "urbandictionary: \2#{word}\2: #{meaning} (eg: #{example})"[0..320]
+
+    when %r{^https?://(?:www\.)?twitch\.tv/([^/]+)$}
+      user = $1
+      # {"content"=>"317070", "property"=>"og:title"},
+      # {"content"=>"Twitch plays Large Scale Deep neural net (shout objects to dream about)",
+      #  "property"=>"og:description"},
+
+      # user = page.at("meta[@property='og:title']")["content"]
+      # desc = page.at("meta[@property='og:description']")["content"]
+
+      # stream.channel.name
+      # stream.channel.display_name
+      # stream.channel.views
+      # stream.channel.status
+      # stream.viewers
+      # stream.created_at
+
+      json       = mech.get("http://api.twitch.tv/kraken/streams/#{user}?on_site=1").body.from_json
+
+      viewers    = json["stream"]["viewers"]
+      started_at = DateTime.parse json["stream"]["created_at"]
+      title      = json["stream"]["channel"]["status"].tighten
+
+      "twitch: \2#{title}\2 (viewers: \2#{viewers}\2, started: \2#{started_at.strftime("%l:%M\2%p, \2%b %e")}\2)"
 
     when %r{^https?://(www\.)?rottentomatoes\.com/m/.+}
       title          = at(".movie_title").clean_text
