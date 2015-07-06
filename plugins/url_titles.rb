@@ -512,10 +512,12 @@ class HTMLParser < Mechanize::Page
       duration = at("meta[@itemprop='duration']")["content"]
       duration = duration.scan(/\d+/).map { |n| "%0.2d" % n.to_i }.join(":")
 
-      likes = at("#watch8-sentiment-actions .like-button-renderer-like-button-unclicked .yt-uix-button-content").clean_text.to_i
-      dislikes = at("#watch8-sentiment-actions .like-button-renderer-dislike-button-unclicked .yt-uix-button-content").clean_text.to_i
+      likes = at("#watch8-sentiment-actions .like-button-renderer-like-button-unclicked .yt-uix-button-content")
+      dislikes = at("#watch8-sentiment-actions .like-button-renderer-dislike-button-unclicked .yt-uix-button-content")
 
-      rating = "%0.1f" % (100.0 * likes.to_f / (likes + dislikes))
+      likes, dislikes = [likes, dislikes].map {|n| n.text.gsub(/\D/, '').to_i }
+
+      rating = "%0.1f%" % ( (likes.to_f / (likes + dislikes)) * 100.0)
 
       views = at(".watch-view-count").clean_text
 
