@@ -258,9 +258,6 @@ class HTMLParser < Mechanize::Page
   end
 
   def link_info
-    # p uri.to_s
-
-    # require 'pry'; binding.pry
 
     case uri.to_s
 
@@ -368,20 +365,36 @@ class HTMLParser < Mechanize::Page
       # "wikipedia: \2#{title}\2 - #{summary}"
       "wikipedia: #{summary}"
 
-    when %r{^(https?://twitter\.com/)(?:#!/)?(.+/status(?:es)?/\d+)}
+    when %r{^(https?://(?:www|mobile\.)?)(twitter\.com/)(?:#!/)?(.+/status(?:es)?/\d+)}
       # Twitter parser
-      newurl  = "#{$1}#{$2}"
+      newurl  = "https://#{$2}#{$3}"
       page    = mech.get(newurl)
+
 
       # tweet   = page.at(".tweet-text").clean_text
       # inner_text.strip.gsub(/\s*\n+\s*/, " ").translate_html_entities if inner_text
 
-      
-      tweet_node = page.at(".permalink-tweet .tweet-text")
-      tweet_node.search("a.twitter-timeline-link").each { |a| a.replace a["href"] } # replace anchor tags with just their hrefs
+      ### Old method (non-mobile)
+      # tweet_node = page.at(".permalink-tweet .tweet-text")
+      # tweet_node.search("a.twitter-timeline-link").each { |a| a.replace a["href"] } # replace anchor tags with just their hrefs
+
+      # tweet   = tweet_node.inner_text.strip.gsub(/\n+/, " / ").translate_html_entities
+      # tweeter = page.at(".permalink-header .username").text
+
+      tweet_node = page.at(".main-tweet .tweet-text")
+      tweet_node.search("a").each do |a|
+        # replace anchor tags with just their hrefs
+        if full_url = a["data-expanded-url"]
+          a.replace full_url
+        elsif picture_id = a["data-tco-id"]
+          a.replace "http://pic.twitter.com/#{picture_id}"
+        else
+          a.replace a["href"]
+        end
+      end
 
       tweet   = tweet_node.inner_text.strip.gsub(/\n+/, " / ").translate_html_entities
-      tweeter = page.at(".permalink-tweet .username").text
+      tweeter = page.at(".main-tweet .username").clean_text
 
       "tweet: <\2#{tweeter}\2> #{tweet}"
 
@@ -441,8 +454,6 @@ class HTMLParser < Mechanize::Page
 
       # <meta itemprop="name" content="floating points" />
       artist = at("meta[itemprop='name']")["content"]
-
-      # require 'pry'; binding.pry
 
       "soundcloud: \2#{title}\2 (by \2#{artist}\2, length: \2#{length}\2, likes: \2#{likes}\2)"
 
@@ -637,7 +648,7 @@ class TitleGrabber
       a.pluggable_parser.html     = HTMLParser
 
       #a.user_agent_alias   = "Windows IE 7"
-      a.user_agent          = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.4 (KHTML, like Gecko) Chrome/22.0.1229.94 Safari/537.4"
+      a.user_agent          = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.85 Safari/537.36"
       a.max_history         = 0
       a.verify_mode         = OpenSSL::SSL::VERIFY_NONE
       a.redirect_ok         = true
