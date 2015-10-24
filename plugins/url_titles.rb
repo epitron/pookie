@@ -382,14 +382,18 @@ class HTMLParser < Mechanize::Page
       # tweeter = page.at(".permalink-header .username").text
 
       tweet_node = page.at(".main-tweet .tweet-text")
-      tweet_node.search("a").each do |a|
+      tweet_node.search("a:not(.twitter-hashtag)").each do |a|
         # replace anchor tags with just their hrefs
         if full_url = a["data-expanded-url"]
           a.replace full_url
         elsif picture_id = a["data-tco-id"]
           a.replace "http://pic.twitter.com/#{picture_id}"
         else
-          a.replace a["href"]
+          if a["href"].startswith("http")
+            a.replace a["href"]
+          else
+            a.replace(a.text)
+          end
         end
       end
 
