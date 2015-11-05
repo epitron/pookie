@@ -109,4 +109,5 @@ end
 # test "http://www.ebi.ac.uk/pdbe/entry/pdb/2d4f/citations"
 # test "https://mobile.twitter.com/ByronSonne/status/641630788908400640"
 # test "https://twitter.com/AccordionGuy/status/641622229705428992"
-test "https://twitter.com/wellcometrust/status/657152678263418880"
+# test "https://twitter.com/wellcometrust/status/657152678263418880"
+test "https://twitter.com/ioerror/status/655020058981351424"

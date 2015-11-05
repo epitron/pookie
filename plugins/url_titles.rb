@@ -1,3 +1,4 @@
+# encoding: utf-8 
 #############################################################################
 #
 # TODOs:
@@ -624,7 +625,7 @@ class TitleGrabber
 
   URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.*?)(?:\s|$)}i
 
-  def initialize(debug: false)
+  def initialize(debug=false)
     @debug = debug
   end
 
