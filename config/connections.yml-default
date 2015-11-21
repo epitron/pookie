@@ -1,10 +1,10 @@
 defaults:
   nick: pookie
   user: pookie
-  realname: "Pookie D. Bot"
+  realname: Pookie D. Bot
 
 freenode:
-  server: irc.freenode.net"
+  server: irc.freenode.net
   port: 6697
   ssl: true
   channels:
