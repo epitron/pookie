@@ -8,6 +8,19 @@
 #                 very high, then ignore the refresh.
 #
 #############################################################################
+#
+# IRC Formatting characters:
+#
+#                Bold: "\002"
+#               Color: "\003"
+#              Hidden: "\010"
+#           Underline: "\037"
+# Original Attributes: "\017"
+#       Reverse Color: "\026"
+#                Beep: "\007"
+#             Italics: "\035" (2.10.0+)
+#
+#############################################################################
 
 require 'epitools'
 require 'cinch'
@@ -519,6 +532,7 @@ class HTMLParser < Mechanize::Page
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       # {"property"=>"og:title", "content"=>"Grass- Silent Partner"},
       # {"name"=>"title", "content"=>"Grass- Silent Partner"},
+      # binding.pry
       title = at("meta[@property='og:title']")["content"]
 
       # {"itemprop"=>"datePublished", "content"=>"2013-10-05"},
@@ -531,12 +545,14 @@ class HTMLParser < Mechanize::Page
       likes = at("#watch8-sentiment-actions .like-button-renderer-like-button-unclicked .yt-uix-button-content")
       dislikes = at("#watch8-sentiment-actions .like-button-renderer-dislike-button-unclicked .yt-uix-button-content")
 
-      likes, dislikes = [likes, dislikes].map {|n| n.text.gsub(/\D/, '').to_i }
-
-      rating = "%0.1f%" % ( (likes.to_f / (likes + dislikes)) * 100.0)
+      if likes and dislikes
+        likes, dislikes = [likes, dislikes].map {|n| n.text.gsub(/\D/, '').to_i }
+        rating = "%0.1f%" % ( (likes.to_f / (likes + dislikes)) * 100.0)
+      else
+        rating = "disabled"
+      end
 
       views = at(".watch-view-count").clean_text
-
 
       "video: \2#{title}\2 (length: \2#{duration}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
 
