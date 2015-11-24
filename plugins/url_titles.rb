@@ -639,7 +639,7 @@ end
 
 class TitleGrabber
 
-  URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.*?)(?:\s|$)}i
+  URL_MATCHER_RE = %r{(?:(?:f|ht)tps?://.+?)(?:\s|$)}i
 
   def initialize(debug=false)
     @debug = debug
