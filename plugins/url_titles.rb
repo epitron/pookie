@@ -708,7 +708,8 @@ module Cinch::Plugins
       /^feepbot/,
       /^galileo/,
       /^eval-in/,
-      /^kanzure/
+      /^kanzure/,
+      /^JosephStalin/
     ]
 
     ### Handle All Lines of Chat ############################
