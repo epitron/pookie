@@ -271,10 +271,24 @@ class HTMLParser < Mechanize::Page
     end
   end
 
+  def meta(property)
+    at("meta[property='#{property}']")["content"]
+  end
+
+  def details(hash)
+    hash.map do |k,v|
+      if not v.blank?
+        "#{k}: \2#{v}\2"
+      end
+    end.compact.join(", ")
+  end
+
   def link_info
 
     case uri.to_s
 
+    ##############################################################
+    # Imgur
     when %r{^https?://(?:www\.|i\.)?imgur\.com/(?:gallery/|album/)?(\w+)(?:\.\w{3})?}
       # title == "imgur: the simple image sharer"
 
@@ -316,18 +330,24 @@ class HTMLParser < Mechanize::Page
 
       if data
         title  = data["title"]
-        size   = "#{data["width"]}x#{data["height"]}"
-        views  = data["views"]
-        date   = data["timestamp"].split.first
         ups    = data["ups"].to_i
         downs  = data["downs"].to_i
         rating = ((ups.to_f/(ups + downs)) * 100).round(0) rescue 0
 
-        "imgur: \2#{title}\2 (views: \2#{views.to_i.commatize}\2, posted: \2#{date}\2, size: \2#{size}\2, rating: \2#{rating}%\2)"
+        deets = {
+          views: data["views"],
+          posted: data["timestamp"].split.first,
+          size: "#{data["width"]}x#{data["height"]}",
+          rating: rating
+        }
+
+        "imgur: \2#{title}\2 (#{details(deets)})"
       else
         nil
       end
 
+    ##############################################################
+    ## Wikipedia file
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/File:(.+)}
       info = at("#mw-content-text .fullMedia .fileInfo").clean_text
 
@@ -337,6 +357,8 @@ class HTMLParser < Mechanize::Page
 
       "wikimedia: #{info}"
 
+    ##############################################################
+    ## Wikipedia page
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
       max_size   = 320
       min_size   = 60
@@ -379,6 +401,8 @@ class HTMLParser < Mechanize::Page
       # "wikipedia: \2#{title}\2 - #{summary}"
       "wikipedia: #{summary}"
 
+    ##############################################################
+    ## Twitter tweet
     when %r{^(https?://(?:www|mobile\.)?)(twitter\.com/)(?:#!/)?(.+/status(?:es)?/\d+)}
       # Twitter parser
       newurl  = "https://#{$2}#{$3}"
@@ -416,6 +440,8 @@ class HTMLParser < Mechanize::Page
 
       "tweet: <\2#{tweeter}\2> #{tweet}"
 
+    ##############################################################
+    ## Twitter account
     when %r{^(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
       newurl    = "#{$1}#{$2}"
       page      = mech.get(newurl)
@@ -442,16 +468,48 @@ class HTMLParser < Mechanize::Page
 
       out
 
+    ##############################################################
+    ## Github repo
     when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)/?$}
+      username, repo = $1, $2
       watchers, stars, forks = search("a.social-count").map(&:clean_text)
 
-      desc     = at(".repository-description")
+      desc     = at(".repository-meta-content")
       #desc.at("span").remove
       desc     = desc.clean_text
 
-      "github: \2#{$1}/#{$2}\2 - #{desc} (stars: \2#{stars}\2, forks: \2#{forks}\2)"
+      if last_commit = at(".commit-tease time")
+        last_commit = last_commit["title"]
+      end
+
+      "github: \2#{desc}\2 (stars: \2#{stars}\2, forks: \2#{forks}\2, last commit: \2#{last_commit}\2)"
 
 
+    ##############################################################
+    ## Instagram post
+    when %r{^https?://(?:www\.)?instagram\.com/p/([^/]+?)/?$}
+
+      # <meta property="og:title" content="Elon Musk on Instagram: “Falcon lands on droneship, but the lockout collet doesn&#39;t latch on one the four legs, causing it to tip over post landing. Root cause may…”" />
+      title = meta("og:title")
+
+      # <meta property="og:type" content="video" />
+      deets = {type: meta("og:type").split(":").last}
+
+      if body =~ /"likes":{"count":(\d+)/
+        deets[:likes] = $1.to_i.commatize
+      end
+
+      if title =~ /^(.+?) on Instagram: (.+)$/
+        user = $1
+        title = $2.gsub(/(^“|”$)/, '')
+        "instagram: <\2#{user}\2> \2#{title}\2 (#{details(deets)})"
+      else
+        "instagram: \2#{title}\2 (#{details(deets)})"
+      end
+
+
+    ##############################################################
+    ## Soundcloud track
     when %r{^https?://(www\.)?soundcloud.com/}
       # page = mech.get "http://soundcloud.com/oembed?url=#{CGI.escape uri.to_s}&format=json"
       # json = page.body.from_json
@@ -475,6 +533,9 @@ class HTMLParser < Mechanize::Page
 
       "soundcloud: \2#{title}\2 (by \2#{artist}\2, length: \2#{length}\2, likes: \2#{likes}\2)"
 
+
+    ##############################################################
+    ## Urbandictionary definition
     when %r{^https?://(www\.)?urbandictionary\.com/define.php\?term=.+}
       elem = search("#content").first
 
@@ -484,6 +545,9 @@ class HTMLParser < Mechanize::Page
 
       "urbandictionary: \2#{word}\2: #{meaning} (eg: #{example})"[0..320]
 
+
+    ##############################################################
+    ## Twitch account
     when %r{^https?://(?:www\.)?twitch\.tv/([^/]+)$}
       user = $1
       # {"content"=>"317070", "property"=>"og:title"},
@@ -508,6 +572,8 @@ class HTMLParser < Mechanize::Page
 
       "twitch: \2#{title}\2 (viewers: \2#{viewers}\2, started: \2#{started_at.strftime("%l:%M\2%p, \2%b %e")}\2)"
 
+    ##############################################################
+    ## Rottentomatoes movie
     when %r{^https?://(www\.)?rottentomatoes\.com/m/.+}
       title          = at(".movie_title").clean_text
       genres         = search("span[itemprop='genre']").map(&:clean_text).join(", ")
@@ -529,6 +595,8 @@ class HTMLParser < Mechanize::Page
 
       result
 
+    ##############################################################
+    ## Youtube video
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       # {"property"=>"og:title", "content"=>"Grass- Silent Partner"},
       # {"name"=>"title", "content"=>"Grass- Silent Partner"},
@@ -556,29 +624,8 @@ class HTMLParser < Mechanize::Page
 
       "video: \2#{title}\2 (length: \2#{duration}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
 
-=begin      
-    when %r{^https?://(www\.)?youtube\.com/watch\?}
-      #views = at("span.watch-view-count").clean_text
-      #date  = at("#eow-date").clean_text
-      #time  = at("span.video-time").clean_text
-      #title = at("#eow-title").clean_text
-
-      video_id = uri.params["v"]
-      page     = mech.get("http://gdata.youtube.com/feeds/api/videos/#{video_id}?v=1&alt=json")
-      json     = page.body.from_json
-
-      video    = YouTubeVideo.new(json["entry"])
-
-      views    = video.views.commatize
-      date     = video.published.strftime("%Y-%m-%d")
-      time     = video.length.to_hms
-      title    = video.title
-      rating   = video.rating ? "%0.1f" % video.rating : "?"
-
-      "video: \2#{title}\2 (length: \2#{time}\2, views: \2#{views}\2, rating: \2#{rating}\2, posted: \2#{date}\2)"
-      #"< #{title} (length: #{time}, views: #{views}, posted: #{date}) >"
-=end
-
+    ##############################################################
+    ## Bitcoin transaction
     when %r{^https?://(?:www\.)?blockchain\.info/tx/(.+)}
       id = $1
       page = mech.get("https://blockchain.info/rawtx/#{id}")
@@ -594,6 +641,8 @@ class HTMLParser < Mechanize::Page
 
       "bitcoin transaction: \2#{total_out}\2 bitcoins (\2#{input_count}\2 inputs, \2#{out_count}\2 outputs, from \2#{ip}\2, at \2#{timestr}\2 on \2#{datestr}\2)"
 
+    ##############################################################
+    ## Kickstarter project
     when %r{^https?://(?:www\.)?kickstarter\.com/projects/.+}
       title     = at("#project-header .title h2").clean_text
       subtitle  = at("#project-header .creator").clean_text
@@ -606,12 +655,19 @@ class HTMLParser < Mechanize::Page
 
       "kickstarter: \2#{title}\2 #{subtitle} (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
 
+
+    ##############################################################
+    ## SSssseeecrreettss      
     when %r{^https?://onetimesecret\.com/secret/}
       "title: \2Ssshhh.. it's a secret!\2"
 
+    ##############################################################
+    ## Eval.in codepaste
     when %r{^https?://(www\.)?eval\.in}
       nil
 
+    ##############################################################
+    ## Fallback: <title> tag
     else
       if title = get_title
         "title: \2#{title}\2"

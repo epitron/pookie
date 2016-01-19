@@ -112,4 +112,7 @@ end
 # test "https://twitter.com/wellcometrust/status/657152678263418880"
 # test "https://twitter.com/ioerror/status/655020058981351424"
 # test "https://www.goodreads.com/review/show/1438354031"
-test "https://www.youtube.com/watch?v=8P8UKBAOfGo"
+# test "https://www.youtube.com/watch?v=8P8UKBAOfGo"
+# test "https://github.com/epitron/pookie"
+# test "https://www.instagram.com/p/BAqirNbwEc0/"
+test "https://www.instagram.com/p/-MdYeAsZgR/"
