@@ -495,6 +495,10 @@ class HTMLParser < Mechanize::Page
       # <meta property="og:type" content="video" />
       deets = {type: meta("og:type").split(":").last}
 
+      if body =~ /"PostPage".+?"date":(\d+\.\d+),/
+        deets[:date] = Time.at($1.to_f).strftime("%Y-%m-%d")
+      end
+
       if body =~ /"likes":{"count":(\d+)/
         deets[:likes] = $1.to_i.commatize
       end
