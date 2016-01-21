@@ -474,15 +474,23 @@ class HTMLParser < Mechanize::Page
       username, repo = $1, $2
       watchers, stars, forks = search("a.social-count").map(&:clean_text)
 
-      desc     = at(".repository-meta-content")
-      #desc.at("span").remove
-      desc     = desc.clean_text
+      desc = at(".repository-meta-content")
+      desc.at(".text-muted").remove
+      desc = desc.clean_text
 
-      if last_commit = at(".commit-tease time")
-        last_commit = last_commit["title"]
+      if time = at(".commit-tease time")
+        last_commit = DateTime.parse(time["datetime"]).strftime("%Y-%m-%d\2 at \2%H:%M %p") rescue nil
       end
 
-      "github: \2#{desc}\2 (stars: \2#{stars}\2, forks: \2#{forks}\2, last commit: \2#{last_commit}\2)"
+      deets = {
+        "stars"       => stars, 
+        "forks"       => forks, 
+        "last commit" => last_commit
+      }
+
+      desc = "<No description>" if desc.blank?
+
+      "github: \2#{desc}\2 (#{details(deets)})"
 
 
     ##############################################################
