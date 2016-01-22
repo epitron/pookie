@@ -475,7 +475,9 @@ class HTMLParser < Mechanize::Page
       watchers, stars, forks = search("a.social-count").map(&:clean_text)
 
       desc = at(".repository-meta-content")
-      desc.at(".text-muted").remove
+      if muted = desc.at(".text-muted")
+        muted.remove
+      end
       desc = desc.clean_text
 
       if time = at(".commit-tease time")
