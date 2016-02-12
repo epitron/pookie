@@ -469,7 +469,107 @@ class HTMLParser < Mechanize::Page
       out
 
     ##############################################################
-    ## Github repo
+    ## Github user or org
+    when %r{^https?://(?:www\.)?github\.com/([^/]+?)/?$}
+      user = $1
+      stats = mech.get("https://api.github.com/users/#{user}").body.from_json
+
+      if at(".org-header")
+        # {
+        #   "login": "google",
+        #   "id": 1342004,
+        #   "avatar_url": "https://avatars.githubusercontent.com/u/1342004?v=3",
+        #   "gravatar_id": "",
+        #   "url": "https://api.github.com/users/google",
+        #   "html_url": "https://github.com/google",
+        #   "followers_url": "https://api.github.com/users/google/followers",
+        #   "following_url": "https://api.github.com/users/google/following{/other_user}",
+        #   "gists_url": "https://api.github.com/users/google/gists{/gist_id}",
+        #   "starred_url": "https://api.github.com/users/google/starred{/owner}{/repo}",
+        #   "subscriptions_url": "https://api.github.com/users/google/subscriptions",
+        #   "organizations_url": "https://api.github.com/users/google/orgs",
+        #   "repos_url": "https://api.github.com/users/google/repos",
+        #   "events_url": "https://api.github.com/users/google/events{/privacy}",
+        #   "received_events_url": "https://api.github.com/users/google/received_events",
+        #   "type": "Organization",
+        #   "site_admin": false,
+        #   "name": "Google",
+        #   "company": null,
+        #   "blog": "https://developers.google.com/",
+        #   "location": null,
+        #   "email": null,
+        #   "hireable": null,
+        #   "bio": null,
+        #   "public_repos": 701,
+        #   "public_gists": 0,
+        #   "followers": 0,
+        #   "following": 0,
+        #   "created_at": "2012-01-18T01:30:18Z",
+        #   "updated_at": "2016-01-26T18:37:55Z"
+        # }
+        if desc = at(".org-header .org-description")
+          desc = desc.clean_text
+        else
+          desc = user
+        end
+
+        deets = {
+          "repos" => stats["public_repos"],
+          "members" => at(".org-stats").clean_text,
+        }
+
+        "github: \2#{desc}\2 (#{details(deets)})"
+      else
+        # {
+        #   "login": "banister",
+        #   "id": 17518,
+        #   "avatar_url": "https://avatars.githubusercontent.com/u/17518?v=3",
+        #   "gravatar_id": "",
+        #   "url": "https://api.github.com/users/banister",
+        #   "html_url": "https://github.com/banister",
+        #   "followers_url": "https://api.github.com/users/banister/followers",
+        #   "following_url": "https://api.github.com/users/banister/following{/other_user}",
+        #   "gists_url": "https://api.github.com/users/banister/gists{/gist_id}",
+        #   "starred_url": "https://api.github.com/users/banister/starred{/owner}{/repo}",
+        #   "subscriptions_url": "https://api.github.com/users/banister/subscriptions",
+        #   "organizations_url": "https://api.github.com/users/banister/orgs",
+        #   "repos_url": "https://api.github.com/users/banister/repos",
+        #   "events_url": "https://api.github.com/users/banister/events{/privacy}",
+        #   "received_events_url": "https://api.github.com/users/banister/received_events",
+        #   "type": "User",
+        #   "site_admin": false,
+        #   "name": "John Mair",
+        #   "company": "General Assembly",
+        #   "blog": "http://twitter.com/banisterfiend",
+        #   "location": "The Hague, Netherlands",
+        #   "email": "jrmair@gmail.com",
+        #   "hireable": true,
+        #   "bio": null,
+        #   "public_repos": 63,
+        #   "public_gists": 838,
+        #   "followers": 221,
+        #   "following": 37,
+        #   "created_at": "2008-07-19T11:18:47Z",
+        #   "updated_at": "2016-02-06T10:14:19Z"
+        # }        
+        if full_name = at(".vcard-fullname")
+          full_name = full_name.clean_text
+        else
+          full_name = name
+        end
+
+        deets = {
+          "location" => stats["location"],
+          "company" => stats["company"],
+          "repos" => stats["public_repos"],
+          "followers" => stats["followers"],
+          "joined" => stats["created_at"].split("T").first,
+        }
+
+        "github: \2#{full_name}\2 (#{details(deets)})"
+      end
+
+
     when %r{^https?://(?:www\.)?github\.com/(?!blog)([^/]+?)/([^/]+?)/?$}
       username, repo = $1, $2
       watchers, stars, forks = search("a.social-count").map(&:clean_text)
