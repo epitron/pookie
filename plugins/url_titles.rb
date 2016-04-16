@@ -33,6 +33,15 @@ require 'json'
 # Monkeypatches
 #############################################################################
 
+class Object
+  def try(methodname); send(methodname); end
+end
+
+class NilClass
+  def try(methodname); nil; end
+  def clean_text; nil; end
+end
+
 class String
 
   UNESCAPE_TABLE = {
@@ -129,59 +138,12 @@ class Nokogiri::XML::Element
   end
 end
 
-# class NilClass
-#   #
-#   # A simple way to make it so missing fields nils don't cause the app the explode.
-#   #
-#   def [](*args)
-#     nil
-#   end
-# end
-
-# YouTubeVideo = Struct.new(
-#                 :title,
-#                 :thumbnails,
-#                 :link,
-#                 :description,
-#                 :length,
-#                 :user,
-#                 :published,
-#                 :updated,
-#                 :rating,
-#                 :raters,
-#                 :keywords,
-#                 :favorites,
-#                 :views
-#               )
-
-# class YouTubeVideo
-#   def initialize(rec)
-
-#     media = rec["media$group"]
-
-#     self.title        = media["media$title"]["$t"]
-#     self.thumbnails   = media["media$thumbnail"].map{|r| r["url"]}
-#     self.link         = media["media$player"].first["url"].gsub('&feature=youtube_gdata_player','')
-#     self.description  = media["media$description"]["$t"]
-#     self.length       = media["yt$duration"]["seconds"].to_i
-#     self.user         = rec["author"].first["name"]["$t"]
-#     self.published    = DateTime.parse rec["published"]["$t"]
-#     self.updated      = DateTime.parse rec["updated"]["$t"]
-#     self.rating       = rec["gd$rating"]["average"]
-#     self.raters       = rec["gd$rating"]["numRaters"]
-#     self.keywords     = rec["media$group"]["media$keywords"]["$t"]
-#     self.favorites    = rec["yt$statistics"]["favoriteCount"].to_i
-#     self.views        = rec["yt$statistics"]["viewCount"].to_i
-#   end
-
-# end
 
 module URI
   def params
     query.to_params
   end
 end
-
 
 #############################################################################
 # Generic link info
@@ -358,7 +320,13 @@ class HTMLParser < Mechanize::Page
       "wikimedia: #{info}"
 
     ##############################################################
-    ## Wikipedia page
+    ## Wikipedia mobile 
+    when %r{^https?://([^\.]+)\.m\.wikipedia\.org/wiki/(.+)}
+      # redirect to the regular wikipedia
+      page = mech.get("https://#{$1}.wikipedia.org/wiki/#{$2}")
+      return page.link_info
+
+    ## Wikipedia
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
       max_size   = 320
       min_size   = 60
@@ -402,6 +370,31 @@ class HTMLParser < Mechanize::Page
       "wikipedia: #{summary}"
 
     ##############################################################
+    ## Twitter account
+    when %r{^(https?://(?:www|mobile\.)?twitter\.com/)(?:#!/)?([^/]+)/?$}
+      # newurl  = "https://#{$2}#{$3}"
+      # newurl    = "#{$1}#{$2}"
+      # page      = mech.get(newurl)
+
+      username  = $2
+      fullname  = at(".user-actions")["data-name"]
+      # tagline = at(".ProfileHeaderCard-bio").clean_text
+      tagline = at(".bio").clean_text
+
+      # deets = {
+      #   "tweets"    => at(".ProfileNav-item--tweets.is-active .ProfileNav-value").clean_text,
+      #   "followers" => at(".ProfileNav-item--followers .ProfileNav-value").clean_text,
+      #   "following" => at(".ProfileNav-item--following .ProfileNav-value").clean_text,
+      # }
+      deets = {
+        "tweets"    => at(".ProfileNav-item--tweets.is-active .ProfileNav-value").clean_text,
+        "followers" => at(".ProfileNav-item--followers .ProfileNav-value").clean_text,
+        "following" => at(".ProfileNav-item--following .ProfileNav-value").clean_text,
+      }
+
+      "tweeter: \2#{fullname}\2 | #{tagline} (#{details(deets)}"
+
+    ##############################################################
     ## Twitter tweet
     when %r{^(https?://(?:www|mobile\.)?)(twitter\.com/)(?:#!/)?(.+/status(?:es)?/\d+)}
       # Twitter parser
@@ -439,34 +432,6 @@ class HTMLParser < Mechanize::Page
       tweeter = page.at(".main-tweet .username").clean_text
 
       "tweet: <\2#{tweeter}\2> #{tweet}"
-
-    ##############################################################
-    ## Twitter account
-    when %r{^(https?://twitter\.com/)(?:#!/)?([^/]+)/?$}
-      newurl    = "#{$1}#{$2}"
-      page      = mech.get(newurl)
-
-      username  = $2
-      fullname  = page.at(".user-actions")["data-name"]
-
-      # tweets    = page.at("ul.stats li a[data-element-term='tweet_stats'] strong").clean_text
-      # followers = page.at("ul.stats li a[data-element-term='follower_stats'] strong").clean_text
-      # following = page.at("ul.stats li a[data-element-term='following_stats'] strong").clean_text
-
-      # tweets    = page.at(".ProfileNav-item--tweets.is-active .ProfileNav-value").clean_text
-      # followers = page.at(".ProfileNav-item--followers .ProfileNav-value").clean_text
-      # following = page.at(".ProfileNav-item--following .ProfileNav-value").clean_text
-
-      tweets    = page.at(".ProfileNav-item--tweets.is-active .ProfileNav-value").clean_text
-      followers = page.at(".ProfileNav-item--followers .ProfileNav-value").clean_text
-
-      following = page.at(".ProfileNav-item--following .ProfileNav-value")
-      following = following.clean_text if following
-
-      out = "tweeter: \2@#{username}\2 (\2#{fullname}\2) | tweets: \2#{tweets}\2, followers: \2#{followers}\2"
-      out += ", following: \2#{following}\2" if following
-
-      out
 
     ##############################################################
     ## Github user or org
@@ -714,7 +679,6 @@ class HTMLParser < Mechanize::Page
     when %r{^https?://(www\.)?youtube\.com/watch\?}
       # {"property"=>"og:title", "content"=>"Grass- Silent Partner"},
       # {"name"=>"title", "content"=>"Grass- Silent Partner"},
-      # binding.pry
       title = at("meta[@property='og:title']")["content"]
 
       # {"itemprop"=>"datePublished", "content"=>"2013-10-05"},

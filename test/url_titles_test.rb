@@ -121,4 +121,6 @@ end
 # test "https://github.com/offrails"
 # test "https://github.com/google"
 # test "https://github.com/microsoft"
-test "https://github.com/banister"
+# test "https://github.com/banister"
+# test "https://twitter.com/worrydream"
+test "https://en.m.wikipedia.org/wiki/Shoe"
