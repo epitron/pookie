@@ -9,7 +9,7 @@
 #
 #############################################################################
 #
-# IRC Formatting characters:
+# IRC Text Formatting reference:
 #
 #                Bold: "\002"
 #               Color: "\003"
@@ -28,6 +28,36 @@ require 'mechanize'
 require 'cgi'
 require 'logger'
 require 'json'
+
+#############################################################################
+# Not used at the moment, but maybe some day!
+
+HTTP_STATUS_CODES = {
+  000 => "Incomplete/Undefined error",
+  201 => "Created",
+  202 => "Accepted",
+  203 => "Non-Authoritative Information",
+  204 => "No Content",
+  205 => "Reset Content",
+  206 => "Partial Content",
+  300 => "Page redirected",
+  301 => "Permanent URL relocation",
+  302 => "Temporary URL relocation",
+  303 => "Temporary relocation method and URL",
+  304 => "Document not modified",
+  400 => "Bad request (syntax)",
+  401 => "Unauthorized access (requires authentication)",
+  402 => "Access forbidden (payment required)",
+  403 => "Forbidden",
+  404 => "URL not found",
+  405 => "Method not Allowed (Most likely the result of a corrupt CGI script)",
+  408 => "Request time-out",
+  500 => "Internet server error",
+  501 => "Functionality not implemented",
+  502 => "Bad gateway",
+  503 => "Service unavailable",
+}
+
 
 #############################################################################
 # Monkeypatches
@@ -218,8 +248,6 @@ end
 # HTML link info
 
 class HTMLParser < Mechanize::Page
-
-  TITLE_RE = /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
 
   def get_title
     # Generic parser
@@ -761,15 +789,17 @@ class HTMLParser < Mechanize::Page
   #--------------------------------------------------------------------------
 
   def get_title_from_html(pagedata)
-    return unless TITLE_RE.match(pagedata)
-    title = $1.strip.gsub(/\s*\n+\s*/, " ")
-    title = unescape_title title
-    title = title[0..255] if title.length > 255
-    "title: \2#{title}\2"
+    if pagedata =~ /<\s*?title\s*?>(.+?)<\s*?\/title\s*?>/im
+      title = $1.strip.gsub(/\s*\n+\s*/, " ")
+      title = unescape_title title
+      title = title[0..255] if title.length > 255
+      "title: \2#{title}\2"
+    end
   end
 
 end
 
+#############################################################################
 
 class TitleGrabber
 
@@ -875,32 +905,6 @@ module Cinch::Plugins
 
     #########################################################
 
-    HTTP_STATUS_CODES = {
-      000 => "Incomplete/Undefined error",
-      201 => "Created",
-      202 => "Accepted",
-      203 => "Non-Authoritative Information",
-      204 => "No Content",
-      205 => "Reset Content",
-      206 => "Partial Content",
-      300 => "Page redirected",
-      301 => "Permanent URL relocation",
-      302 => "Temporary URL relocation",
-      303 => "Temporary relocation method and URL",
-      304 => "Document not modified",
-      400 => "Bad request (syntax)",
-      401 => "Unauthorized access (requires authentication)",
-      402 => "Access forbidden (payment required)",
-      403 => "Forbidden",
-      404 => "URL not found",
-      405 => "Method not Allowed (Most likely the result of a corrupt CGI script)",
-      408 => "Request time-out",
-      500 => "Internet server error",
-      501 => "Functionality not implemented",
-      502 => "Bad gateway",
-      503 => "Service unavailable",
-    }
-    
   end
 
 end
