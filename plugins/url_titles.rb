@@ -324,7 +324,7 @@ class HTMLParser < Mechanize::Page
     when %r{^https?://([^\.]+)\.m\.wikipedia\.org/wiki/(.+)}
       # redirect to the regular wikipedia
       page = mech.get("https://#{$1}.wikipedia.org/wiki/#{$2}")
-      return page.link_info
+      page.link_info
 
     ## Wikipedia
     when %r{^https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
