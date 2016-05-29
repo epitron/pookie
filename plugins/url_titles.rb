@@ -891,7 +891,7 @@ module Cinch::Plugins
       url_list.each do |url|
         debug "Getting info for #{url}..."
 
-        if title = titlegrabber.grab(url) 
+        if title = titlegrabber.grab(url)
           debug title
           m.reply title
         else

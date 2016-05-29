@@ -13,20 +13,22 @@ def test(message)
   p urls: urls
 
   urls.each do |url|
-    result = g.grab(url)
-
-    bold = false
-    bolded = result.gsub("\2") do |m| 
-      if bold
-        bold = false
-        "</11>"
-      else
-        bold = true
-        "<11>"
+    if result = g.grab(url)
+      bold = false
+      bolded = result.gsub("\2") do |m| 
+        if bold
+          bold = false
+          "</11>"
+        else
+          bold = true
+          "<11>"
+        end
       end
-    end
 
-    puts "<9>#{bolded}</9>".colorize
+      puts "<9>#{bolded}</9>".colorize
+    else
+      puts "<title> not found"
+    end
   end
 end
 
@@ -123,4 +125,6 @@ end
 # test "https://github.com/microsoft"
 # test "https://github.com/banister"
 # test "https://twitter.com/worrydream"
-test "https://en.m.wikipedia.org/wiki/Shoe"
+# test "https://en.m.wikipedia.org/wiki/Shoe"
+test "http://www.ex.ua/10683305"
+# test "https://en.wikipedia.org/wiki/Extract,_transform,_load" # FIXME: It's deleting the bullet list in the summary line.
