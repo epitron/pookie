@@ -750,16 +750,21 @@ class HTMLParser < Mechanize::Page
     ##############################################################
     ## Kickstarter project
     when %r{^https?://(?:www\.)?kickstarter\.com/projects/.+}
-      title     = at("#project-header .title h2").clean_text
-      subtitle  = at("#project-header .creator").clean_text
+      # <meta property="og:title" content="Ace of Space"/>
+      # <meta property="og:description" content="Ace of Space is an oddball narrative 3D space shooter, set in the space future, with an exciting single player space story. For PC!"/>
+
+      # title     = at("#project-header .title h2").clean_text
+      # subtitle  = at("#project-header .creator").clean_text
+      title = at("meta[property='og:title']")["content"]
 
       stats     = at("#stats")
-      remaining = stats.at("#project_duration_data")["data-hours-remaining"]
+      remaining = stats.at("#project_duration_data")["data-hours-remaining"].to_f.round(2)
       backers   = stats.at("#backers_count")["data-backers-count"].to_i.commatize
       goal      = stats.at("#pledged")["data-goal"].to_i.commatize
       pledged   = stats.at("#pledged")["data-pledged"].to_i.commatize
 
-      "kickstarter: \2#{title}\2 #{subtitle} (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
+      # "kickstarter: \2#{title}\2 #{subtitle} (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
+      "kickstarter: \2#{title}\2 (\2#{backers}\2 backers pledged \2$#{pledged}\2 of \2$#{goal}\2 goal; \2#{remaining}\2 hours remaining)"
 
 
     ##############################################################

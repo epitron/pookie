@@ -126,5 +126,6 @@ end
 # test "https://github.com/banister"
 # test "https://twitter.com/worrydream"
 # test "https://en.m.wikipedia.org/wiki/Shoe"
-test "http://www.ex.ua/10683305"
 # test "https://en.wikipedia.org/wiki/Extract,_transform,_load" # FIXME: It's deleting the bullet list in the summary line.
+# test "http://www.ex.ua/10683305" # FIXME
+test "https://www.kickstarter.com/projects/623868335/ace-of-space"
