@@ -354,14 +354,15 @@ class HTMLParser < Mechanize::Page
       page = mech.get("https://#{$1}.wikipedia.org/wiki/#{$2}")
       page.link_info
 
-    ## Wikipedia
-    when %r{^https?://[^\.]+\.wikipedia\.org/wiki/(.+)}
-      max_size   = 320
-      min_size   = 60
-      title      = at("#firstHeading").clean_text
-      sentences  = []
-      content = search("#bodyContent #mw-content-text")
-      content.search("table").remove
+    ## {Wiki,Scholar}pedia
+    when %r{^https?://[^\.]+\.(wikipedia)\.org/wiki/(.+)}, %r{^https?://[^\.]+\.(scholarpedia)\.org/article/(.+)}
+      site      = $1
+      max_size  = 320
+      min_size  = 60
+      title     = at("#firstHeading").clean_text
+      sentences = []
+      content   = search("#bodyContent #mw-content-text")
+      content.search("table, .cp-curator-box, #sp_authors").remove
 
       paragraphs = content.search("p")
 
@@ -395,7 +396,7 @@ class HTMLParser < Mechanize::Page
       end
 
       # "wikipedia: \2#{title}\2 - #{summary}"
-      "wikipedia: #{summary}"
+      "#{site}: #{summary}"
 
     ##############################################################
     ## Twitter account
