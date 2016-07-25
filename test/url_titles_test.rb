@@ -57,6 +57,7 @@ end
 # test "http://erlangonxen.org/"
 # test "https://twitter.com/oh_rodr/status/258661589232803840"
 # test "https://twitter.com/Giancarlo818"
+# test "http://en.wikipedia.org/wiki/Chickens"
 # test "http://en.wikipedia.org/wiki/Agenda_21"
 # test "http://en.wikipedia.org/wiki/Israel"
 # test "https://twitter.com/stevelosh/status/340183472373129216"
@@ -128,5 +129,5 @@ end
 # test "https://en.wikipedia.org/wiki/Extract,_transform,_load" # FIXME: It's deleting the bullet list in the summary line.
 # test "http://www.ex.ua/10683305" # FIXME
 # test "https://www.kickstarter.com/projects/623868335/ace-of-space"
-# test "http://www.scholarpedia.org/article/Quantum_chaos"
-test "http://en.wikipedia.org/wiki/Chickens"
+# test "http://en.wikipedia.org/wiki/Chickens"
+test "http://www.scholarpedia.org/article/Quantum_chaos"
