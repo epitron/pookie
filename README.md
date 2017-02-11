@@ -13,12 +13,11 @@ To install/run pookie:
 1. Get the code (`git clone http://github.com/epitron/pookie.git`)
 2. Run bundler (`bundle install`)
 3. Copy `config/connections.yml-default` to `config/connections.yml`, and edit it to configure its name and what channels/networks it connects to
-4. Edit `config/settings.yml` (to name your bot)
-5. Run `./go`!
+4. Run `./go`!
   
 ## Copyright
 
-Copyright (c) 2009-2014 epitron
+Copyright (c) 2009-2017 epitron
 
 ## License
 
